@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -12,7 +11,6 @@ import {
   MoveDown,
   Info,
   Activity,
-  Stretch,
   Zap
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
