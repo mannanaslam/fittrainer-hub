@@ -14,7 +14,8 @@ import {
   Utensils,
   Bell,
   PieChart,
-  Activity 
+  Activity,
+  CheckCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
