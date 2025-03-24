@@ -1,17 +1,20 @@
-
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Dumbbell, Mail, User, Lock, CheckCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Dumbbell, Mail, User, Lock, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/components/ui/use-toast";
 
 const SignUp = () => {
   const [userType, setUserType] = useState<"client" | "trainer">("client");
   const [step, setStep] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
   const handleContinue = () => {
     if (step < 3) {
@@ -22,6 +25,20 @@ const SignUp = () => {
   const handleBack = () => {
     if (step > 1) {
       setStep(step - 1);
+    }
+  };
+
+  const handleCompleteSignUp = () => {
+    toast({
+      title: "Sign up successful!",
+      description: "Welcome to FitTrainer. Your account has been created.",
+    });
+    
+    // Redirect based on user type
+    if (userType === "trainer") {
+      navigate("/dashboard");
+    } else {
+      navigate("/"); // Redirect clients to home page
     }
   };
 
@@ -102,7 +119,15 @@ const SignUp = () => {
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="password" type="password" placeholder="Create a password" className="pl-10" />
+                    <Input 
+                      id="password" 
+                      type={showPassword ? "text" : "password"} 
+                      placeholder="Create a password" 
+                      className="pl-10"
+                    />
+                    <button onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+                    </button>
                   </div>
                   <p className="text-xs text-muted-foreground">Password must be at least 8 characters long</p>
                 </div>
@@ -295,16 +320,6 @@ const SignUp = () => {
                 <Button variant="outline" className="flex-1" onClick={handleBack}>
                   Back
                 </Button>
-                <Button className="flex-1">
-                  Complete Sign Up
-                </Button>
-              </div>
-            </div>
-          )}
-        </Container>
-      </div>
-    </div>
-  );
-};
+                <Button className="flex-1" onClick={handleCompleteSignUp}>
+                 
 
-export default SignUp;
