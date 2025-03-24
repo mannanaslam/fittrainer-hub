@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Dumbbell, Mail, User, Lock, CheckCircle, Eye, EyeOff } from "lucide-react";
@@ -125,7 +126,11 @@ const SignUp = () => {
                       placeholder="Create a password" 
                       className="pl-10"
                     />
-                    <button onClick={() => setShowPassword(!showPassword)}>
+                    <button 
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3"
+                    >
                       {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
                     </button>
                   </div>
@@ -321,5 +326,15 @@ const SignUp = () => {
                   Back
                 </Button>
                 <Button className="flex-1" onClick={handleCompleteSignUp}>
-                 
+                  Complete Sign Up
+                </Button>
+              </div>
+            </div>
+          )}
+        </Container>
+      </div>
+    </div>
+  );
+};
 
+export default SignUp;
