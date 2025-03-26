@@ -1,4 +1,3 @@
-
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Dumbbell, Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -44,9 +43,18 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       setIsLoading(true);
-      const { error } = await signIn(values.email, values.password);
       
-      if (error) throw error;
+      // Log attempt for debugging
+      console.log(`Attempting login for email: ${values.email}`);
+      
+      const { data, error } = await signIn(values.email, values.password);
+      
+      if (error) {
+        console.error("Login error:", error);
+        throw error;
+      }
+      
+      console.log("Login successful:", data);
       
       toast({
         title: "Login successful",
@@ -55,9 +63,13 @@ const Login = () => {
       
       navigate("/dashboard");
     } catch (error) {
+      console.error("Login failed:", error);
+      
       toast({
         title: "Login failed",
-        description: error instanceof Error ? error.message : "Please check your credentials",
+        description: error instanceof Error 
+          ? error.message 
+          : "Connection error. Please try again later.",
         variant: "destructive"
       });
     } finally {
