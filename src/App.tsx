@@ -20,9 +20,10 @@ import ClientDetails from "./pages/ClientDetails";
 
 const queryClient = new QueryClient();
 
-// Update auth context with Supabase types
+// Update auth context with Supabase types and profile
 export const AuthContext = createContext<ReturnType<typeof useSupabaseAuth>>({
   user: null,
+  profile: null,
   loading: true,
   signUp: async () => ({ data: null, error: null }),
   signIn: async () => ({ data: null, error: null }),
