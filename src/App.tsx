@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +7,16 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { createContext, useContext } from "react";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import Index from "./pages/Index";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
+import WorkoutPlan from "./pages/WorkoutPlan";
+import CreateWorkout from "./pages/CreateWorkout";
+import CreateMealPlan from "./pages/CreateMealPlan";
+import CreateSubscription from "./pages/CreateSubscription";
+import Clients from "./pages/Clients";
+import ClientDetails from "./pages/ClientDetails";
 
 const queryClient = new QueryClient();
 

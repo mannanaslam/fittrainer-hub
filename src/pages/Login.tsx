@@ -5,7 +5,6 @@ import { Dumbbell, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -31,7 +30,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { signIn } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   
   const form = useForm<LoginFormValues>({
@@ -45,7 +44,9 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       setIsLoading(true);
-      await login(values.email, values.password);
+      const { error } = await signIn(values.email, values.password);
+      
+      if (error) throw error;
       
       toast({
         title: "Login successful",
