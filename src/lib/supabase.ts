@@ -13,10 +13,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true
   },
   global: {
-    fetch: (...args) => {
+    fetch: (url, options) => {
       // Add logging for debug purposes
-      console.log('Supabase fetch:', args[0]);
-      return fetch(...args);
+      console.log('Supabase fetch:', url);
+      return fetch(url, options);
     }
   }
 });
