@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User, AuthError } from '@supabase/supabase-js';
@@ -81,9 +82,11 @@ export const useSupabaseAuth = () => {
       
       const maxRetries = 3;
       let lastError = null;
+      let retryDelay = 1000; // Start with 1 second delay
       
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
+          // Use custom fetch timeouts to prevent hanging requests
           const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -92,7 +95,9 @@ export const useSupabaseAuth = () => {
           if (error) {
             console.error(`Sign in error (attempt ${attempt}/${maxRetries}):`, error);
             lastError = error;
-            if (error.message !== 'Failed to fetch') {
+            
+            // Only retry for network errors, not auth errors
+            if (!error.message.includes('fetch') && !error.message.includes('network')) {
               throw error;
             }
           } else {
@@ -101,11 +106,17 @@ export const useSupabaseAuth = () => {
           }
           
           if (attempt < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+            // Exponential backoff with jitter for better retry performance
+            const jitter = Math.random() * 0.3;
+            const delay = retryDelay * (1 + jitter);
+            retryDelay *= 2; // Double the delay for next time
+            
+            console.log(`Retrying in ${Math.round(delay)}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
           }
         } catch (e) {
           lastError = e;
-          if (attempt === maxRetries) {
+          if (attempt === maxRetries || (!e.message?.includes('fetch') && !e.message?.includes('network'))) {
             throw e;
           }
         }
@@ -114,14 +125,21 @@ export const useSupabaseAuth = () => {
       throw lastError;
     } catch (error) {
       console.error("Sign in caught error:", error);
-      return { 
-        data: null, 
-        error: {
-          name: error.name || 'AuthError',
-          message: error.message || 'Authentication failed. Please try again.',
-          status: error.status || 500
-        }
+      
+      // Format the error to be more helpful
+      const formattedError = {
+        name: error.name || 'AuthError',
+        message: error.message || 'Authentication failed. Please try again.',
+        status: error.status || 500
       };
+      
+      // Add special handling for network errors
+      if (error.message?.includes('fetch') || error.status === 0) {
+        formattedError.message = 'Connection error. Please check your internet connection and try again.';
+        formattedError.name = 'NetworkError';
+      }
+      
+      return { data: null, error: formattedError };
     }
   };
 

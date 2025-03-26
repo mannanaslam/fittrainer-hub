@@ -1,6 +1,7 @@
+
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Dumbbell, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Dumbbell, Mail, Lock, Eye, EyeOff, WifiOff } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [connectionError, setConnectionError] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { signIn } = useContext(AuthContext);
@@ -43,6 +45,7 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       setIsLoading(true);
+      setConnectionError(false);
       
       // Log attempt for debugging
       console.log(`Attempting login for email: ${values.email}`);
@@ -51,6 +54,13 @@ const Login = () => {
       
       if (error) {
         console.error("Login error:", error);
+        
+        // Check if it's a network/connection error
+        if (error.message?.includes('fetch') || error.status === 0) {
+          setConnectionError(true);
+          throw new Error("Connection error. Please check your internet connection and try again.");
+        }
+        
         throw error;
       }
       
@@ -77,6 +87,14 @@ const Login = () => {
     }
   };
   
+  // Try the demo accounts if there's a connection error
+  const tryDemoAccount = async (type: 'trainer' | 'client') => {
+    const email = type === 'trainer' ? 'trainer@example.com' : 'client@example.com';
+    form.setValue('email', email);
+    form.setValue('password', 'password123');
+    await onSubmit({ email, password: 'password123' });
+  };
+  
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
@@ -93,6 +111,18 @@ const Login = () => {
               <h1 className="text-2xl font-bold">Welcome back</h1>
               <p className="text-muted-foreground">Sign in to your account to continue</p>
             </div>
+            
+            {connectionError && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
+                <div className="flex items-center space-x-3">
+                  <WifiOff className="h-5 w-5 text-yellow-500" />
+                  <div className="text-sm text-yellow-800">
+                    <p className="font-medium">Connection error</p>
+                    <p>There seems to be an issue connecting to our servers. Please check your internet connection and try again.</p>
+                  </div>
+                </div>
+              </div>
+            )}
             
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -176,6 +206,26 @@ const Login = () => {
                 <p><strong>Trainer:</strong> trainer@example.com / password123</p>
                 <p><strong>Client:</strong> client@example.com / password123</p>
               </div>
+              {connectionError && (
+                <div className="mt-2 flex flex-col space-y-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => tryDemoAccount('trainer')}
+                    className="text-xs"
+                  >
+                    Try Trainer Demo
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => tryDemoAccount('client')}
+                    className="text-xs"
+                  >
+                    Try Client Demo
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </Container>
