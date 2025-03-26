@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User, AuthError } from '@supabase/supabase-js';
@@ -8,7 +7,6 @@ export const useSupabaseAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active sessions and sets the user
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -22,7 +20,6 @@ export const useSupabaseAuth = () => {
     
     checkSession();
 
-    // Listen for changes on auth state
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -41,7 +38,7 @@ export const useSupabaseAuth = () => {
         email,
         password,
         options: {
-          data: userData, // Additional user metadata
+          data: userData,
         },
       });
 
@@ -52,7 +49,6 @@ export const useSupabaseAuth = () => {
 
       console.log("Sign up successful:", data);
 
-      // If signup successful, create a profile in the profiles table
       if (data.user) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -83,21 +79,49 @@ export const useSupabaseAuth = () => {
     try {
       console.log("Sign in attempt for:", email);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const maxRetries = 3;
+      let lastError = null;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
 
-      if (error) {
-        console.error("Sign in error:", error);
-        throw error;
+          if (error) {
+            console.error(`Sign in error (attempt ${attempt}/${maxRetries}):`, error);
+            lastError = error;
+            if (error.message !== 'Failed to fetch') {
+              throw error;
+            }
+          } else {
+            console.log("Sign in successful:", data);
+            return { data, error: null };
+          }
+          
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+          }
+        } catch (e) {
+          lastError = e;
+          if (attempt === maxRetries) {
+            throw e;
+          }
+        }
       }
       
-      console.log("Sign in successful:", data);
-      return { data, error: null };
+      throw lastError;
     } catch (error) {
       console.error("Sign in caught error:", error);
-      return { data: null, error: error as AuthError };
+      return { 
+        data: null, 
+        error: {
+          name: error.name || 'AuthError',
+          message: error.message || 'Authentication failed. Please try again.',
+          status: error.status || 500
+        }
+      };
     }
   };
 
