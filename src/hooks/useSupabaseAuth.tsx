@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import type { User, AuthError } from '@supabase/supabase-js';
 import { Profile } from '@/types/supabase';
 
@@ -16,7 +16,7 @@ export const useSupabaseAuth = () => {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Profile fetch error:", error);
@@ -31,28 +31,8 @@ export const useSupabaseAuth = () => {
   };
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          const userProfile = await fetchProfile(session.user.id);
-          setProfile(userProfile);
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Session check error:", error);
-        setLoading(false);
-      }
-    };
-    
-    checkSession();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
@@ -64,6 +44,27 @@ export const useSupabaseAuth = () => {
       
       setLoading(false);
     });
+    
+    // THEN check for existing session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          const userProfile = await fetchProfile(session.user.id);
+          setProfile(userProfile);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error("Initial session check error:", error);
+        setLoading(false);
+      }
+    };
+    
+    getInitialSession();
 
     return () => subscription.unsubscribe();
   }, []);
@@ -107,55 +108,24 @@ export const useSupabaseAuth = () => {
     try {
       console.log("Sign in attempt for:", email);
       
-      const maxRetries = 3;
-      let lastError = null;
-      let retryDelay = 1000; // Start with 1 second delay
-      
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          // Use custom fetch timeouts to prevent hanging requests
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-          if (error) {
-            console.error(`Sign in error (attempt ${attempt}/${maxRetries}):`, error);
-            lastError = error;
-            
-            // Only retry for network errors, not auth errors
-            if (!error.message.includes('fetch') && !error.message.includes('network')) {
-              throw error;
-            }
-          } else {
-            console.log("Sign in successful:", data);
-            
-            if (data.user) {
-              const userProfile = await fetchProfile(data.user.id);
-              if (userProfile) setProfile(userProfile);
-            }
-            
-            return { data, error: null };
-          }
-          
-          if (attempt < maxRetries) {
-            // Exponential backoff with jitter for better retry performance
-            const jitter = Math.random() * 0.3;
-            const delay = retryDelay * (1 + jitter);
-            retryDelay *= 2; // Double the delay for next time
-            
-            console.log(`Retrying in ${Math.round(delay)}ms...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          }
-        } catch (e) {
-          lastError = e;
-          if (attempt === maxRetries || (!(e as any).message?.includes('fetch') && !(e as any).message?.includes('network'))) {
-            throw e;
-          }
-        }
+      if (error) {
+        console.error("Sign in error:", error);
+        throw error;
       }
       
-      throw lastError;
+      console.log("Sign in successful:", data);
+      
+      if (data.user) {
+        const userProfile = await fetchProfile(data.user.id);
+        if (userProfile) setProfile(userProfile);
+      }
+      
+      return { data, error: null };
     } catch (error) {
       console.error("Sign in caught error:", error);
       
@@ -168,8 +138,8 @@ export const useSupabaseAuth = () => {
       
       // Add special handling for network errors
       if ((error as any).message?.includes('fetch') || (error as any).status === 0) {
-        formattedError.message = 'Connection error. Please check your internet connection and try again.';
         formattedError.name = 'NetworkError';
+        formattedError.message = 'Connection error. Please check your internet connection and try again.';
       }
       
       return { data: null, error: formattedError };

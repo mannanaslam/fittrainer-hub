@@ -56,9 +56,14 @@ const Login = () => {
         console.error("Login error:", error);
         
         // Check if it's a network/connection error
-        if (error.message?.includes('fetch') || error.status === 0) {
+        if (error.name === 'NetworkError' || error.message?.includes('fetch') || error.status === 0) {
           setConnectionError(true);
           throw new Error("Connection error. Please check your internet connection and try again.");
+        }
+        
+        // Handle specific authentication errors
+        if (error.message === 'Invalid login credentials') {
+          throw new Error("Invalid email or password. Please try again.");
         }
         
         throw error;
@@ -79,7 +84,7 @@ const Login = () => {
         title: "Login failed",
         description: error instanceof Error 
           ? error.message 
-          : "Connection error. Please try again later.",
+          : "An unknown error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -206,26 +211,24 @@ const Login = () => {
                 <p><strong>Trainer:</strong> trainer@example.com / password123</p>
                 <p><strong>Client:</strong> client@example.com / password123</p>
               </div>
-              {connectionError && (
-                <div className="mt-2 flex flex-col space-y-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => tryDemoAccount('trainer')}
-                    className="text-xs"
-                  >
-                    Try Trainer Demo
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => tryDemoAccount('client')}
-                    className="text-xs"
-                  >
-                    Try Client Demo
-                  </Button>
-                </div>
-              )}
+              <div className="mt-2 flex flex-col space-y-2">
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => tryDemoAccount('trainer')}
+                  className="text-xs"
+                >
+                  Try Trainer Demo
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => tryDemoAccount('client')}
+                  className="text-xs"
+                >
+                  Try Client Demo
+                </Button>
+              </div>
             </div>
           </div>
         </Container>
