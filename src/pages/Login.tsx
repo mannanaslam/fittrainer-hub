@@ -47,7 +47,6 @@ const Login = () => {
       setIsLoading(true);
       setConnectionError(false);
       
-      // Log attempt for debugging
       console.log(`Attempting login for email: ${values.email}`);
       
       const { data, error } = await signIn(values.email, values.password);
@@ -55,13 +54,11 @@ const Login = () => {
       if (error) {
         console.error("Login error:", error);
         
-        // Check if it's a network/connection error
         if (error.name === 'NetworkError' || error.message?.includes('fetch') || error.status === 0) {
           setConnectionError(true);
           throw new Error("Connection error. Please check your internet connection and try again.");
         }
         
-        // Handle specific authentication errors
         if (error.message === 'Invalid login credentials') {
           throw new Error("Invalid email or password. Please try again.");
         }
@@ -92,12 +89,52 @@ const Login = () => {
     }
   };
   
-  // Try the demo accounts if there's a connection error
   const tryDemoAccount = async (type: 'trainer' | 'client') => {
-    const email = type === 'trainer' ? 'trainer@example.com' : 'client@example.com';
-    form.setValue('email', email);
-    form.setValue('password', 'password123');
-    await onSubmit({ email, password: 'password123' });
+    try {
+      setIsLoading(true);
+      
+      const email = type === 'trainer' ? 'trainer@example.com' : 'client@example.com';
+      const password = 'password123';
+      
+      console.log(`Trying demo account: ${email}`);
+      form.setValue('email', email);
+      form.setValue('password', password);
+      
+      // Instead of using form.handleSubmit, directly call signIn
+      const { data, error } = await signIn(email, password);
+      
+      if (error) {
+        console.error("Demo login error:", error);
+        
+        if (error.name === 'NetworkError' || error.message?.includes('fetch') || error.status === 0) {
+          setConnectionError(true);
+          throw new Error("Connection error. Please check your internet connection and try again.");
+        }
+        
+        throw new Error(error.message || "Login failed. Please try again.");
+      }
+      
+      console.log("Demo login successful:", data);
+      
+      toast({
+        title: "Login successful",
+        description: `Welcome to the ${type} demo account`,
+      });
+      
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Demo login failed:", error);
+      
+      toast({
+        title: "Demo login failed",
+        description: error instanceof Error 
+          ? error.message 
+          : "An unknown error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   return (
@@ -204,7 +241,6 @@ const Login = () => {
               </p>
             </div>
             
-            {/* Demo accounts for testing */}
             <div className="bg-muted/50 p-4 rounded-lg">
               <h3 className="text-sm font-medium mb-2">Demo Accounts</h3>
               <div className="text-xs text-muted-foreground space-y-1">
@@ -217,6 +253,7 @@ const Login = () => {
                   variant="outline"
                   onClick={() => tryDemoAccount('trainer')}
                   className="text-xs"
+                  disabled={isLoading}
                 >
                   Try Trainer Demo
                 </Button>
@@ -225,6 +262,7 @@ const Login = () => {
                   variant="outline"
                   onClick={() => tryDemoAccount('client')}
                   className="text-xs"
+                  disabled={isLoading}
                 >
                   Try Client Demo
                 </Button>

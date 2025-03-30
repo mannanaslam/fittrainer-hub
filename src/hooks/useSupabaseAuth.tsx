@@ -32,12 +32,17 @@ export const useSupabaseAuth = () => {
 
   useEffect(() => {
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session?.user?.id);
+      
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        const userProfile = await fetchProfile(session.user.id);
-        setProfile(userProfile);
+        // Defer profile fetch to avoid Supabase auth recursion
+        setTimeout(async () => {
+          const userProfile = await fetchProfile(session.user.id);
+          setProfile(userProfile);
+        }, 0);
       } else {
         setProfile(null);
       }
@@ -48,8 +53,10 @@ export const useSupabaseAuth = () => {
     // THEN check for existing session
     const getInitialSession = async () => {
       try {
+        console.log("Checking for initial session...");
         const { data: { session } } = await supabase.auth.getSession();
         
+        console.log("Initial session check:", session?.user?.id);
         setUser(session?.user ?? null);
         
         if (session?.user) {
@@ -108,6 +115,12 @@ export const useSupabaseAuth = () => {
     try {
       console.log("Sign in attempt for:", email);
       
+      // Clear any existing session first to avoid potential conflicts
+      await supabase.auth.signOut();
+      
+      // Add a small delay to ensure the signOut completes
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -120,10 +133,7 @@ export const useSupabaseAuth = () => {
       
       console.log("Sign in successful:", data);
       
-      if (data.user) {
-        const userProfile = await fetchProfile(data.user.id);
-        if (userProfile) setProfile(userProfile);
-      }
+      // The onAuthStateChange handler will update the user and profile states
       
       return { data, error: null };
     } catch (error) {
@@ -156,6 +166,7 @@ export const useSupabaseAuth = () => {
       }
       console.log("Sign out successful");
       setProfile(null);
+      setUser(null);
     } catch (error) {
       console.error('Error signing out:', error);
     }
