@@ -6,10 +6,18 @@ import { Profile } from '@/types/supabase';
 
 export const useSupabaseAuth = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Default mock profile for demonstration when not authenticated
+  const [profile, setProfile] = useState<Profile | null>({
+    id: "mock-user-id",
+    email: "demo@example.com",
+    name: "Demo User",
+    role: "trainer", // Can be changed to "client" as needed
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  });
+  const [loading, setLoading] = useState(false);
 
-  // Fetch user profile data
+  // Fetch user profile data - not actively used in demo mode
   const fetchProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -30,146 +38,54 @@ export const useSupabaseAuth = () => {
     }
   };
 
+  // Auth state listener - disabled in demo mode
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session?.user?.id);
-      
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        // Defer profile fetch to avoid Supabase auth recursion
-        setTimeout(async () => {
-          const userProfile = await fetchProfile(session.user.id);
-          setProfile(userProfile);
-        }, 0);
-      } else {
-        setProfile(null);
-      }
-      
-      setLoading(false);
-    });
-    
-    // THEN check for existing session
-    const getInitialSession = async () => {
-      try {
-        console.log("Checking for initial session...");
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        console.log("Initial session check:", session?.user?.id);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          const userProfile = await fetchProfile(session.user.id);
-          setProfile(userProfile);
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Initial session check error:", error);
-        setLoading(false);
-      }
-    };
-    
-    getInitialSession();
-
-    return () => subscription.unsubscribe();
+    console.log("Auth is temporarily disabled for demo purposes");
+    setLoading(false);
   }, []);
 
+  // These functions will not actually perform authentication in demo mode
   const signUp = async (email: string, password: string, userData: any) => {
-    try {
-      console.log("Sign up attempt for:", email);
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: userData,
-        },
-      });
-
-      if (error) {
-        console.error("Sign up error:", error);
-        throw error;
-      }
-
-      console.log("Sign up successful:", data);
-
-      // The profile will be created automatically through the database trigger
-      // Just wait a moment for the database trigger to complete
-      if (data.user) {
-        setTimeout(async () => {
-          const userProfile = await fetchProfile(data.user!.id);
-          if (userProfile) setProfile(userProfile);
-        }, 1000);
-      }
-
-      return { data, error: null };
-    } catch (error) {
-      console.error("Sign up error:", error);
-      return { data: null, error: error as AuthError };
-    }
+    console.log("Sign up is temporarily disabled for demo purposes");
+    return { data: null, error: null };
   };
 
   const signIn = async (email: string, password: string) => {
-    try {
-      console.log("Sign in attempt for:", email);
-      
-      // Clear any existing session first to avoid potential conflicts
-      await supabase.auth.signOut();
-      
-      // Add a small delay to ensure the signOut completes
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+    console.log("Sign in is temporarily disabled for demo purposes");
+    
+    // Set mock profile based on email (to simulate different user types)
+    if (email.includes('trainer')) {
+      setProfile({
+        id: "trainer-mock-id",
+        email: "trainer@example.com",
+        name: "Demo Trainer",
+        role: "trainer",
+        specialization: "Strength Training",
+        experience: 5,
+        bio: "Professional trainer with 5 years of experience",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       });
-
-      if (error) {
-        console.error("Sign in error:", error);
-        throw error;
-      }
-      
-      console.log("Sign in successful:", data);
-      
-      // The onAuthStateChange handler will update the user and profile states
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error("Sign in caught error:", error);
-      
-      // Format the error to be more helpful
-      const formattedError = {
-        name: (error as any).name || 'AuthError',
-        message: (error as any).message || 'Authentication failed. Please try again.',
-        status: (error as any).status || 500
-      };
-      
-      // Add special handling for network errors
-      if ((error as any).message?.includes('fetch') || (error as any).status === 0) {
-        formattedError.name = 'NetworkError';
-        formattedError.message = 'Connection error. Please check your internet connection and try again.';
-      }
-      
-      return { data: null, error: formattedError };
+    } else {
+      setProfile({
+        id: "client-mock-id",
+        email: "client@example.com",
+        name: "Demo Client",
+        role: "client",
+        goals: ["Weight Loss", "Muscle Gain"],
+        experience_level: "intermediate",
+        activity_level: 3,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
     }
+    
+    return { data: null, error: null };
   };
 
   const signOut = async () => {
-    try {
-      console.log("Sign out attempt");
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Sign out error:", error);
-        throw error;
-      }
-      console.log("Sign out successful");
-      setProfile(null);
-      setUser(null);
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+    console.log("Sign out is temporarily disabled for demo purposes");
+    // Don't actually sign out in demo mode
   };
 
   return {

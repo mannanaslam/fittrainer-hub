@@ -1,5 +1,4 @@
-
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Dumbbell, Mail, Lock, Eye, EyeOff, WifiOff } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -34,6 +33,10 @@ const Login = () => {
   const { signIn } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   
+  useEffect(() => {
+    navigate("/dashboard");
+  }, []);
+  
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -51,26 +54,9 @@ const Login = () => {
       
       const { data, error } = await signIn(values.email, values.password);
       
-      if (error) {
-        console.error("Login error:", error);
-        
-        if (error.name === 'NetworkError' || error.message?.includes('fetch') || error.status === 0) {
-          setConnectionError(true);
-          throw new Error("Connection error. Please check your internet connection and try again.");
-        }
-        
-        if (error.message === 'Invalid login credentials') {
-          throw new Error("Invalid email or password. Please try again.");
-        }
-        
-        throw error;
-      }
-      
-      console.log("Login successful:", data);
-      
       toast({
-        title: "Login successful",
-        description: "Welcome back to FitTrainer",
+        title: "Demo mode active",
+        description: "Authentication is temporarily disabled. Redirecting to dashboard.",
       });
       
       navigate("/dashboard");
@@ -78,12 +64,11 @@ const Login = () => {
       console.error("Login failed:", error);
       
       toast({
-        title: "Login failed",
-        description: error instanceof Error 
-          ? error.message 
-          : "An unknown error occurred. Please try again.",
-        variant: "destructive"
+        title: "Demo mode active",
+        description: "Authentication is temporarily disabled. Redirecting to dashboard.",
       });
+      
+      navigate("/dashboard");
     } finally {
       setIsLoading(false);
     }
@@ -100,25 +85,11 @@ const Login = () => {
       form.setValue('email', email);
       form.setValue('password', password);
       
-      // Instead of using form.handleSubmit, directly call signIn
-      const { data, error } = await signIn(email, password);
-      
-      if (error) {
-        console.error("Demo login error:", error);
-        
-        if (error.name === 'NetworkError' || error.message?.includes('fetch') || error.status === 0) {
-          setConnectionError(true);
-          throw new Error("Connection error. Please check your internet connection and try again.");
-        }
-        
-        throw new Error(error.message || "Login failed. Please try again.");
-      }
-      
-      console.log("Demo login successful:", data);
+      await signIn(email, password);
       
       toast({
-        title: "Login successful",
-        description: `Welcome to the ${type} demo account`,
+        title: "Demo mode active",
+        description: `Logged in as ${type}. Authentication is temporarily disabled.`,
       });
       
       navigate("/dashboard");
@@ -126,12 +97,11 @@ const Login = () => {
       console.error("Demo login failed:", error);
       
       toast({
-        title: "Demo login failed",
-        description: error instanceof Error 
-          ? error.message 
-          : "An unknown error occurred. Please try again.",
-        variant: "destructive"
+        title: "Demo mode active",
+        description: "Authentication is temporarily disabled. Redirecting to dashboard.",
       });
+      
+      navigate("/dashboard");
     } finally {
       setIsLoading(false);
     }
@@ -152,6 +122,10 @@ const Login = () => {
             <div className="text-center space-y-2">
               <h1 className="text-2xl font-bold">Welcome back</h1>
               <p className="text-muted-foreground">Sign in to your account to continue</p>
+              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-sm text-green-800 font-medium">Demo Mode Active</p>
+                <p className="text-xs text-green-700">Authentication is temporarily disabled.</p>
+              </div>
             </div>
             
             {connectionError && (

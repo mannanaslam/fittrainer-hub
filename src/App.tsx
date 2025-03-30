@@ -30,18 +30,9 @@ export const AuthContext = createContext<ReturnType<typeof useSupabaseAuth>>({
   signOut: async () => {},
 });
 
-// Protected route component using Supabase auth
+// Temporarily modified to allow access without authentication
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useContext(AuthContext);
-  
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-  
+  // Always render children regardless of authentication status
   return <>{children}</>;
 };
 
@@ -60,7 +51,7 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               
-              {/* Protected routes */}
+              {/* Now these routes are accessible without authentication */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
