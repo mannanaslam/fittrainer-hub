@@ -4,403 +4,283 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FitTrainer - Fitness Training Platform</title>
+  <title>FitTrainer - Your Personal Fitness Platform</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static/font/lucide.min.css">
 </head>
 <body>
-  <header class="header">
-    <div class="container header-content">
-      <div class="logo">
-        <i class="icon icon-dumbbell"></i>
-        <span>FitTrainer</span>
-      </div>
-      
-      <nav class="desktop-nav">
-        <a href="#" class="nav-link active">Home</a>
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#testimonials" class="nav-link">Testimonials</a>
-        <a href="#pricing" class="nav-link">Pricing</a>
-      </nav>
-      
-      <div class="header-buttons">
-        <a href="login.html" class="btn btn-ghost">Log In</a>
-        <a href="signup.html" class="btn btn-primary">Sign Up</a>
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
-          <i class="icon icon-menu"></i>
-        </button>
-      </div>
-    </div>
-    
-    <div class="mobile-menu" id="mobileMenu">
-      <div class="container">
-        <nav class="mobile-nav">
-          <a href="#" class="nav-link active">Home</a>
-          <a href="#features" class="nav-link">Features</a>
-          <a href="#testimonials" class="nav-link">Testimonials</a>
-          <a href="#pricing" class="nav-link">Pricing</a>
-        </nav>
-        <div class="mobile-buttons">
-          <a href="login.html" class="btn btn-outline btn-block">Log In</a>
-          <a href="signup.html" class="btn btn-primary btn-block">Sign Up</a>
-        </div>
-      </div>
-    </div>
-  </header>
-  
-  <main>
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="container hero-content">
-        <div class="badge">Fitness Made Simple</div>
-        <h1 class="hero-title">The Ultimate Platform for <span class="text-primary">Fitness Trainers</span></h1>
-        <p class="hero-description">Manage clients, create workout plans, and grow your fitness business with our all-in-one platform. Designed for personal trainers who want to deliver exceptional results.</p>
-        <div class="hero-buttons">
-          <a href="signup.html" class="btn btn-primary btn-lg">Start Your Free Trial</a>
-          <a href="#features" class="btn btn-outline btn-lg">See How It Works</a>
-        </div>
-        <div class="preview-image">
-          <div class="glass-card">
-            <div class="preview-placeholder">
-              <span>Dashboard Preview</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <!-- Features Section -->
-    <section id="features" class="features">
-      <div class="container">
-        <div class="section-header">
-          <h2>Everything You Need to Manage Your Fitness Business</h2>
-          <p>From client management to workout planning, we've got all the tools you need to deliver an exceptional fitness experience.</p>
-        </div>
+  <div class="min-h-screen flex flex-col">
+    <header class="header">
+      <div class="container header-content">
+        <a href="index.html" class="logo">
+          <i class="icon icon-dumbbell"></i>
+          <span>FitTrainer</span>
+        </a>
         
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="icon icon-users"></i>
-            </div>
-            <h3>Client Management</h3>
-            <p>Keep track of all your clients, their progress, and their fitness goals in one place. Send personalized messages and updates to keep them engaged.</p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="icon icon-dumbbell"></i>
-            </div>
-            <h3>Workout Planning</h3>
-            <p>Create custom workout plans for each client based on their fitness level and goals. Include video demonstrations, sets, reps, and detailed instructions.</p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="icon icon-utensils"></i>
-            </div>
-            <h3>Nutrition Tracking</h3>
-            <p>Develop personalized meal plans for your clients. Track macros, calories, and water intake to help them achieve their nutrition goals.</p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="icon icon-bar-chart-3"></i>
-            </div>
-            <h3>Progress Analytics</h3>
-            <p>Track client progress with detailed analytics and visual reports. Monitor weight, measurements, strength gains, and more.</p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="icon icon-calendar"></i>
-            </div>
-            <h3>Scheduling</h3>
-            <p>Manage your schedule and allow clients to book sessions directly through the platform. Automated reminders reduce no-shows.</p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="icon icon-dollar-sign"></i>
-            </div>
-            <h3>Subscription Management</h3>
-            <p>Set up and manage subscriptions for your training packages. Automated billing makes getting paid easy and reliable.</p>
-          </div>
+        <div class="header-buttons">
+          <a href="login.html" class="btn btn-ghost">Log In</a>
+          <a href="signup.html" class="btn btn-primary">Sign Up</a>
         </div>
       </div>
-    </section>
+    </header>
     
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials">
-      <div class="container">
-        <div class="section-header">
-          <h2>Trusted by Fitness Professionals Worldwide</h2>
-          <p>Don't just take our word for it. Here's what trainers are saying about our platform.</p>
-        </div>
-        
-        <div class="testimonials-grid">
-          <div class="testimonial-card">
-            <div class="testimonial-header">
-              <div class="testimonial-avatar">JD</div>
-              <div class="testimonial-user">
-                <h4>John Doe</h4>
-                <p>Personal Trainer</p>
+    <main class="flex-1">
+      <!-- Hero Section -->
+      <section class="py-12 md:py-24">
+        <div class="container">
+          <div class="flex flex-col md:flex-row items-center gap-8">
+            <div class="flex-1 text-center md:text-left">
+              <h1 class="text-3xl md:text-5xl font-bold mb-6">Elevate Your Fitness Business</h1>
+              <p class="text-lg text-muted-foreground mb-8 max-w-xl">
+                The all-in-one platform for personal trainers to manage clients, create workout plans, and grow their business.
+              </p>
+              <div class="space-x-4">
+                <a href="signup.html" class="btn btn-primary">Get Started</a>
+                <a href="#features" class="btn btn-outline">Learn More</a>
               </div>
             </div>
-            <div class="rating">
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-            </div>
-            <blockquote>
-              "Since using FitTrainer, I've been able to take on more clients while actually spending less time on admin work. The workout planning tools alone have saved me hours every week."
-            </blockquote>
-          </div>
-          
-          <div class="testimonial-card">
-            <div class="testimonial-header">
-              <div class="testimonial-avatar">SJ</div>
-              <div class="testimonial-user">
-                <h4>Sarah Johnson</h4>
-                <p>Yoga Instructor</p>
+            <div class="flex-1">
+              <div class="relative rounded-xl overflow-hidden shadow-lg">
+                <img 
+                  src="https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80" 
+                  alt="Fitness trainer with client" 
+                  class="w-full h-auto"
+                >
               </div>
             </div>
-            <div class="rating">
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-            </div>
-            <blockquote>
-              "My clients love being able to access their workout plans and track their progress on the go. It's made a huge difference in their consistency and results."
-            </blockquote>
-          </div>
-          
-          <div class="testimonial-card">
-            <div class="testimonial-header">
-              <div class="testimonial-avatar">MR</div>
-              <div class="testimonial-user">
-                <h4>Michael Rodriguez</h4>
-                <p>Fitness Studio Owner</p>
-              </div>
-            </div>
-            <div class="rating">
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-half"></i>
-            </div>
-            <blockquote>
-              "Running a studio with multiple trainers was a logistical nightmare until we found FitTrainer. Now everything is centralized and we can scale our business more effectively."
-            </blockquote>
-          </div>
-          
-          <div class="testimonial-card">
-            <div class="testimonial-header">
-              <div class="testimonial-avatar">AP</div>
-              <div class="testimonial-user">
-                <h4>Alex Patel</h4>
-                <p>Online Coach</p>
-              </div>
-            </div>
-            <div class="rating">
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-              <i class="icon icon-star-filled"></i>
-            </div>
-            <blockquote>
-              "The subscription management feature has completely transformed my online coaching business. I no longer chase payments and can focus on what I do best - helping my clients."
-            </blockquote>
           </div>
         </div>
-      </div>
-    </section>
-    
-    <!-- Pricing Section -->
-    <section id="pricing" class="pricing">
-      <div class="container">
-        <div class="section-header">
-          <h2>Simple, transparent pricing</h2>
-          <p>Choose the perfect plan for your fitness business. No hidden fees, no contracts, cancel anytime.</p>
-        </div>
-        
-        <div class="pricing-grid">
-          <div class="pricing-card">
-            <div class="pricing-header">
-              <h3>Basic</h3>
-              <div class="price">
-                <span class="amount">$29</span>
-                <span class="period">/month</span>
-              </div>
-              <p>Perfect for independent trainers just getting started</p>
-            </div>
-            <ul class="pricing-features">
-              <li><i class="icon icon-check"></i> Up to 10 clients</li>
-              <li><i class="icon icon-check"></i> Workout plan creation</li>
-              <li><i class="icon icon-check"></i> Client progress tracking</li>
-              <li><i class="icon icon-check"></i> Email support</li>
-              <li class="disabled"><i class="icon icon-x"></i> No meal plan creation</li>
-              <li class="disabled"><i class="icon icon-x"></i> No custom branding</li>
-              <li class="disabled"><i class="icon icon-x"></i> No API access</li>
-            </ul>
-            <a href="signup.html" class="btn btn-outline btn-block">Get Started</a>
-          </div>
-          
-          <div class="pricing-card popular">
-            <div class="popular-badge">Most Popular</div>
-            <div class="pricing-header">
-              <h3>Professional</h3>
-              <div class="price">
-                <span class="amount">$79</span>
-                <span class="period">/month</span>
-              </div>
-              <p>For growing fitness businesses with more clients</p>
-            </div>
-            <ul class="pricing-features">
-              <li><i class="icon icon-check"></i> Up to 50 clients</li>
-              <li><i class="icon icon-check"></i> Workout plan creation</li>
-              <li><i class="icon icon-check"></i> Meal plan creation</li>
-              <li><i class="icon icon-check"></i> Client progress tracking</li>
-              <li><i class="icon icon-check"></i> Custom branding</li>
-              <li><i class="icon icon-check"></i> Priority support</li>
-              <li class="disabled"><i class="icon icon-x"></i> No API access</li>
-            </ul>
-            <a href="signup.html" class="btn btn-primary btn-block">Start Free Trial</a>
-          </div>
-          
-          <div class="pricing-card">
-            <div class="pricing-header">
-              <h3>Enterprise</h3>
-              <div class="price">
-                <span class="amount">$199</span>
-                <span class="period">/month</span>
-              </div>
-              <p>For established fitness studios and gym chains</p>
-            </div>
-            <ul class="pricing-features">
-              <li><i class="icon icon-check"></i> Unlimited clients</li>
-              <li><i class="icon icon-check"></i> Workout plan creation</li>
-              <li><i class="icon icon-check"></i> Meal plan creation</li>
-              <li><i class="icon icon-check"></i> Client progress tracking</li>
-              <li><i class="icon icon-check"></i> Custom branding</li>
-              <li><i class="icon icon-check"></i> API access</li>
-              <li><i class="icon icon-check"></i> Dedicated account manager</li>
-              <li><i class="icon icon-check"></i> Advanced analytics</li>
-            </ul>
-            <a href="contact.html" class="btn btn-outline btn-block">Contact Sales</a>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-  
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="footer-logo">
-            <i class="icon icon-dumbbell"></i>
-            <span>FitTrainer</span>
-          </div>
-          <p>The all-in-one platform for fitness professionals to manage clients and deliver premium workout experiences.</p>
-        </div>
-        
-        <div class="footer-links">
-          <div class="footer-col">
-            <h3>Product</h3>
-            <ul>
-              <li><a href="#features">Features</a></li>
-              <li><a href="#pricing">Pricing</a></li>
-              <li><a href="#">Integrations</a></li>
-              <li><a href="#">Updates</a></li>
-            </ul>
-          </div>
-          
-          <div class="footer-col">
-            <h3>Resources</h3>
-            <ul>
-              <li><a href="#">Documentation</a></li>
-              <li><a href="#">Tutorials</a></li>
-              <li><a href="#">Blog</a></li>
-              <li><a href="#">Support</a></li>
-            </ul>
-          </div>
-          
-          <div class="footer-col">
-            <h3>Company</h3>
-            <ul>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Careers</a></li>
-              <li><a href="#">Contact</a></li>
-              <li><a href="#">Legal</a></li>
-            </ul>
-          </div>
-          
-          <div class="footer-col">
-            <h3>Connect</h3>
-            <ul>
-              <li><a href="#">Twitter</a></li>
-              <li><a href="#">Instagram</a></li>
-              <li><a href="#">Facebook</a></li>
-              <li><a href="#">LinkedIn</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      </section>
       
-      <div class="footer-bottom">
-        <p>&copy; 2023 FitTrainer. All rights reserved.</p>
-        <div class="social-links">
-          <a href="#"><i class="icon icon-twitter"></i></a>
-          <a href="#"><i class="icon icon-instagram"></i></a>
-          <a href="#"><i class="icon icon-facebook"></i></a>
-          <a href="#"><i class="icon icon-linkedin"></i></a>
-        </div>
-      </div>
-    </div>
-  </footer>
-  
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-      const mobileMenu = document.getElementById('mobileMenu');
-      
-      mobileMenuBtn.addEventListener('click', function() {
-        mobileMenu.classList.toggle('open');
-      });
-      
-      // Close mobile menu when clicking outside
-      document.addEventListener('click', function(event) {
-        if (!mobileMenuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
-          mobileMenu.classList.remove('open');
-        }
-      });
-      
-      // Smooth scrolling for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
+      <!-- Features Section -->
+      <section id="features" class="py-12 bg-accent">
+        <div class="container">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-4">Powerful Features for Fitness Professionals</h2>
+            <p class="text-muted-foreground max-w-2xl mx-auto">Everything you need to manage your clients, create personalized workout plans, and grow your fitness business.</p>
+          </div>
           
-          const targetId = this.getAttribute('href');
-          if (targetId === '#') return;
-          
-          const targetElement = document.querySelector(targetId);
-          if (targetElement) {
-            targetElement.scrollIntoView({
-              behavior: 'smooth'
-            });
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="glass-card p-6 rounded-xl">
+              <div class="mb-4 text-primary">
+                <i class="icon icon-users text-3xl"></i>
+              </div>
+              <h3 class="font-bold text-xl mb-2">Client Management</h3>
+              <p class="text-muted-foreground">Track progress, manage communication, and store all client information in one secure place.</p>
+            </div>
             
-            // Close mobile menu after navigation
-            mobileMenu.classList.remove('open');
-          }
-        });
-      });
-    });
-  </script>
+            <!-- Feature 2 -->
+            <div class="glass-card p-6 rounded-xl">
+              <div class="mb-4 text-primary">
+                <i class="icon icon-dumbbell text-3xl"></i>
+              </div>
+              <h3 class="font-bold text-xl mb-2">Workout Builder</h3>
+              <p class="text-muted-foreground">Create custom workout plans with our easy-to-use builder. Add exercises, sets, reps, and more.</p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="glass-card p-6 rounded-xl">
+              <div class="mb-4 text-primary">
+                <i class="icon icon-utensils text-3xl"></i>
+              </div>
+              <h3 class="font-bold text-xl mb-2">Nutrition Planning</h3>
+              <p class="text-muted-foreground">Design meal plans that complement your clients' workout routines for maximum results.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Testimonials Section -->
+      <section id="testimonials" class="py-12">
+        <div class="container">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-4">Trusted by Fitness Professionals</h2>
+            <p class="text-muted-foreground max-w-2xl mx-auto">See what trainers and gym owners are saying about FitTrainer.</p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Testimonial 1 -->
+            <div class="glass-card p-6 rounded-xl">
+              <div class="flex items-center mb-4">
+                <div class="avatar mr-4">JD</div>
+                <div>
+                  <p class="font-bold">John Doe</p>
+                  <p class="text-sm text-muted-foreground">Personal Trainer</p>
+                </div>
+              </div>
+              <p class="text-muted-foreground">"FitTrainer has transformed how I manage my clients. The workout builder is intuitive and my clients love the mobile app."</p>
+            </div>
+            
+            <!-- Testimonial 2 -->
+            <div class="glass-card p-6 rounded-xl">
+              <div class="flex items-center mb-4">
+                <div class="avatar mr-4">JS</div>
+                <div>
+                  <p class="font-bold">Jane Smith</p>
+                  <p class="text-sm text-muted-foreground">Gym Owner</p>
+                </div>
+              </div>
+              <p class="text-muted-foreground">"Since implementing FitTrainer across our gym, we've seen a 30% increase in client retention. The platform pays for itself!"</p>
+            </div>
+            
+            <!-- Testimonial 3 -->
+            <div class="glass-card p-6 rounded-xl">
+              <div class="flex items-center mb-4">
+                <div class="avatar mr-4">RJ</div>
+                <div>
+                  <p class="font-bold">Robert Johnson</p>
+                  <p class="text-sm text-muted-foreground">Fitness Coach</p>
+                </div>
+              </div>
+              <p class="text-muted-foreground">"The nutrition planning features help me create holistic fitness programs for my clients. It's been a game-changer for my business."</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Pricing Section -->
+      <section id="pricing" class="py-12 bg-accent">
+        <div class="container">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-4">Simple, Transparent Pricing</h2>
+            <p class="text-muted-foreground max-w-2xl mx-auto">Choose the plan that fits your business needs. All plans include our core features.</p>
+          </div>
+          
+          <div class="subscription-cards">
+            <!-- Basic Plan -->
+            <div class="subscription-card">
+              <h3 class="text-xl font-bold mb-2">Basic</h3>
+              <div class="text-3xl font-bold mb-4">$29<span class="text-sm font-normal text-muted-foreground">/month</span></div>
+              <p class="text-muted-foreground mb-6">Perfect for individual trainers just getting started.</p>
+              
+              <div class="subscription-features">
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>Up to 20 clients</span>
+                </div>
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>Workout builder</span>
+                </div>
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>Client mobile app</span>
+                </div>
+              </div>
+              
+              <a href="signup.html" class="btn btn-outline w-full">Get Started</a>
+            </div>
+            
+            <!-- Pro Plan -->
+            <div class="subscription-card popular">
+              <div class="popular-badge">Most Popular</div>
+              <h3 class="text-xl font-bold mb-2">Pro</h3>
+              <div class="text-3xl font-bold mb-4">$79<span class="text-sm font-normal text-muted-foreground">/month</span></div>
+              <p class="text-muted-foreground mb-6">For growing fitness businesses with more clients.</p>
+              
+              <div class="subscription-features">
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>Unlimited clients</span>
+                </div>
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>Nutrition planning</span>
+                </div>
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>Advanced analytics</span>
+                </div>
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>Client messaging</span>
+                </div>
+              </div>
+              
+              <a href="signup.html" class="btn btn-primary w-full">Get Started</a>
+            </div>
+            
+            <!-- Enterprise Plan -->
+            <div class="subscription-card">
+              <h3 class="text-xl font-bold mb-2">Enterprise</h3>
+              <div class="text-3xl font-bold mb-4">$199<span class="text-sm font-normal text-muted-foreground">/month</span></div>
+              <p class="text-muted-foreground mb-6">For fitness studios and multi-trainer businesses.</p>
+              
+              <div class="subscription-features">
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>Multiple trainer accounts</span>
+                </div>
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>White-label mobile app</span>
+                </div>
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>API access</span>
+                </div>
+                <div class="feature-item">
+                  <i class="icon icon-check-circle text-success"></i>
+                  <span>Dedicated support</span>
+                </div>
+              </div>
+              
+              <a href="signup.html" class="btn btn-outline w-full">Contact Sales</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <a href="index.html" class="logo">
+              <i class="icon icon-dumbbell"></i>
+              <span>FitTrainer</span>
+            </a>
+            <p class="mt-4 text-muted-foreground">The all-in-one platform for fitness professionals.</p>
+          </div>
+          
+          <div class="footer-links">
+            <div class="footer-group">
+              <h3 class="footer-title">Product</h3>
+              <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+              </ul>
+            </div>
+            
+            <div class="footer-group">
+              <h3 class="footer-title">Company</h3>
+              <ul>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">Careers</a></li>
+              </ul>
+            </div>
+            
+            <div class="footer-group">
+              <h3 class="footer-title">Support</h3>
+              <ul>
+                <li><a href="#">Help Center</a></li>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>&copy; 2023 FitTrainer. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+  
+  <script src="script.js"></script>
 </body>
 </html>
