@@ -1,3 +1,4 @@
+
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import SignUp from "@/pages/SignUp";
@@ -12,26 +13,29 @@ import Exercises from "@/pages/Exercises";
 import NotFound from "@/pages/NotFound";
 import { Toaster } from "@/components/ui/toaster";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/clients" element={<Clients />} />
-        <Route path="/clients/:id" element={<ClientDetails />} />
-        <Route path="/subscription/create" element={<CreateSubscription />} />
-        <Route path="/meal-plan/create" element={<CreateMealPlan />} />
-        <Route path="/workout-plan/create" element={<CreateWorkout />} />
-        <Route path="/workout-plan/:id" element={<WorkoutPlan />} />
-        <Route path="/exercises" element={<Exercises />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster />
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/clients" element={<Clients />} />
+          <Route path="/clients/:id" element={<ClientDetails />} />
+          <Route path="/subscription/create" element={<CreateSubscription />} />
+          <Route path="/meal-plan/create" element={<CreateMealPlan />} />
+          <Route path="/workout-plan/create" element={<CreateWorkout />} />
+          <Route path="/workout-plan/:id" element={<WorkoutPlan />} />
+          <Route path="/exercises" element={<Exercises />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

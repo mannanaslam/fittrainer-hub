@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Dumbbell, Mail, Lock, Eye, EyeOff, WifiOff } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { AuthContext } from "@/App";
+import { useAuth } from "@/hooks/useAuth";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -30,7 +30,7 @@ const Login = () => {
   const [connectionError, setConnectionError] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { signIn } = useContext(AuthContext);
+  const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
   useEffect(() => {
