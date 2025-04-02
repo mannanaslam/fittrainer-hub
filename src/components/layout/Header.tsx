@@ -5,11 +5,13 @@ import { Dumbbell, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -20,10 +22,16 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+  
   const navItems = [
     { name: "Home", path: "/" },
     { name: "Features", path: "/#features" },
     { name: "Pricing", path: "/#pricing" },
+    { name: "Testimonials", path: "/#testimonials" },
   ];
   
   return (
@@ -57,16 +65,26 @@ export function Header() {
           </nav>
           
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/login">
-              <Button variant="ghost" className="animate-hover">
-                Log in
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button className="animate-hover">
-                Sign up
-              </Button>
-            </Link>
+            {user ? (
+              <Link to="/dashboard">
+                <Button className="animate-hover">
+                  Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost" className="animate-hover">
+                    Log in
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button className="animate-hover">
+                    Sign up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
           
           {/* Mobile Menu Button */}
@@ -108,16 +126,26 @@ export function Header() {
                 ))}
                 <div className="border-t border-border my-2" />
                 <div className="flex flex-col space-y-2 px-4 pt-2">
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full">
-                      Log in
-                    </Button>
-                  </Link>
-                  <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full">
-                      Sign up
-                    </Button>
-                  </Link>
+                  {user ? (
+                    <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full">
+                        Dashboard
+                      </Button>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full">
+                          Log in
+                        </Button>
+                      </Link>
+                      <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
+                        <Button className="w-full">
+                          Sign up
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </nav>
             </div>

@@ -18,28 +18,41 @@ export function Footer() {
     {
       title: "Resources",
       links: [
-        { name: "Help Center", href: "#" },
-        { name: "Blog", href: "#" },
-        { name: "Tutorials", href: "#" },
+        { name: "Help Center", href: "/help" },
+        { name: "Blog", href: "/blog" },
+        { name: "Tutorials", href: "/tutorials" },
       ],
     },
     {
       title: "Company",
       links: [
-        { name: "About", href: "#" },
-        { name: "Careers", href: "#" },
-        { name: "Contact", href: "#" },
+        { name: "About", href: "/about" },
+        { name: "Careers", href: "/careers" },
+        { name: "Contact", href: "/contact" },
       ],
     },
     {
       title: "Legal",
       links: [
-        { name: "Privacy", href: "#" },
-        { name: "Terms", href: "#" },
-        { name: "Cookie Policy", href: "#" },
+        { name: "Privacy", href: "/privacy" },
+        { name: "Terms", href: "/terms" },
+        { name: "Cookie Policy", href: "/cookies" },
       ],
     },
   ];
+
+  // Handle smooth scrolling for hash links
+  const handleScrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // Only apply smooth scrolling for hash links on the current page
+    if (href.startsWith('/#')) {
+      e.preventDefault();
+      const targetId = href.substring(2);
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <footer className="border-t border-border py-12 mt-24">
@@ -64,6 +77,7 @@ export function Footer() {
                     <Link
                       to={link.href}
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={(e) => handleScrollToSection(e, link.href)}
                     >
                       {link.name}
                     </Link>
@@ -79,13 +93,13 @@ export function Footer() {
             © {currentYear} FitTrainer. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0 flex space-x-6">
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
               Twitter
             </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
               Instagram
             </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
               Facebook
             </a>
           </div>

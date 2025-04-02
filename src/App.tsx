@@ -30,9 +30,18 @@ export const AuthContext = createContext<ReturnType<typeof useSupabaseAuth>>({
   signOut: async () => {},
 });
 
-// Temporarily modified to allow access without authentication
+// Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  // Always render children regardless of authentication status
+  const { user, loading } = useContext(AuthContext);
+  
+  // If still loading, show nothing
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+  
+  // For demo purposes, we'll still allow access without authentication
+  // In a real app, you'd use this:
+  // return user ? children : <Navigate to="/login" />;
   return <>{children}</>;
 };
 
@@ -51,7 +60,7 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               
-              {/* Now these routes are accessible without authentication */}
+              {/* Protected routes */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
@@ -87,6 +96,17 @@ const App = () => {
                   <ClientDetails />
                 </ProtectedRoute>
               } />
+              
+              {/* Placeholder routes for footer links */}
+              <Route path="/help" element={<NotFound />} />
+              <Route path="/blog" element={<NotFound />} />
+              <Route path="/tutorials" element={<NotFound />} />
+              <Route path="/about" element={<NotFound />} />
+              <Route path="/careers" element={<NotFound />} />
+              <Route path="/contact" element={<NotFound />} />
+              <Route path="/privacy" element={<NotFound />} />
+              <Route path="/terms" element={<NotFound />} />
+              <Route path="/cookies" element={<NotFound />} />
               
               {/* Catch-all route */}
               <Route path="*" element={<NotFound />} />

@@ -2,8 +2,11 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/Container";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Hero() {
+  const { user } = useAuth();
+  
   return (
     <div className="relative pt-28 pb-20 md:py-32 overflow-hidden">
       {/* Background elements */}
@@ -27,11 +30,19 @@ export function Hero() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:600ms]">
-            <Link to="/signup">
-              <Button size="lg" className="w-full sm:w-auto">
-                Get Started
-              </Button>
-            </Link>
+            {user ? (
+              <Link to="/dashboard">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Go to Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/signup">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Get Started
+                </Button>
+              </Link>
+            )}
             <Link to="/#features">
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 Explore Features
