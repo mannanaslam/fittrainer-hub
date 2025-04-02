@@ -1,14 +1,18 @@
-
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Search, 
+  MoreVertical, 
+  Send, 
+  Paperclip, 
+  ChevronRight,
+  Plus,
+  SmilePlus, 
+  Image as ImageIcon
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Check, FilePlus, Image, Paperclip, Send, Smile, User } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Avatar } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Sample messages data
 const messages = [
@@ -248,7 +252,7 @@ export function ClientCommunication() {
                       />
                       <div className="flex mt-2 space-x-2">
                         <Button size="sm" variant="outline">
-                          <Image className="h-4 w-4 mr-1" />
+                          <ImageIcon className="h-4 w-4 mr-1" />
                           Image
                         </Button>
                         <Button size="sm" variant="outline">
@@ -256,7 +260,7 @@ export function ClientCommunication() {
                           File
                         </Button>
                         <Button size="sm" variant="outline">
-                          <Smile className="h-4 w-4" />
+                          <SmilePlus className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>

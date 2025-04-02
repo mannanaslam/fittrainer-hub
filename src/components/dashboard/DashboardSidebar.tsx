@@ -1,6 +1,14 @@
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { Sidebar, SidebarFooter, SidebarHeader, SidebarNav } from "@/components/ui/sidebar";
+import { 
+  Sidebar, 
+  SidebarFooter, 
+  SidebarHeader, 
+  SidebarContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton
+} from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { 
   LayoutDashboard, 
@@ -93,10 +101,22 @@ export function DashboardSidebar() {
         <span className="text-xl font-bold">FitPro</span>
       </SidebarHeader>
       
-      <SidebarNav 
-        items={navItems} 
-        onSelect={(href) => navigate(href)}
-      />
+      <SidebarContent>
+        <SidebarMenu>
+          {navItems.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton 
+                isActive={item.active}
+                onClick={() => navigate(item.href)}
+                tooltip={item.title}
+              >
+                <item.icon className="h-4 w-4 mr-3" />
+                <span>{item.title}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarContent>
       
       <SidebarFooter>
         <button 
