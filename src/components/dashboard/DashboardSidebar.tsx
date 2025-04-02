@@ -1,121 +1,111 @@
 
+import { useLocation, useNavigate } from "react-router-dom";
+import { Sidebar, SidebarFooter, SidebarHeader, SidebarNav } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/useAuth";
 import { 
-  Dumbbell, 
+  LayoutDashboard, 
   Users, 
-  Calendar, 
-  Settings, 
-  BarChart3, 
-  Utensils,
-  DollarSign,
-  User,
-  Video,
-  PieChart,
+  CreditCard, 
+  Dumbbell, 
+  Utensils, 
+  Calendar,
+  Settings,
+  LogOut,
+  BarChart,
+  MessageSquare
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarHeader,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem 
-} from "@/components/ui/sidebar";
 
 export function DashboardSidebar() {
+  const location = useLocation();
   const navigate = useNavigate();
-
-  // Menu items for the sidebar
-  const menuItems = [
-    { title: "Overview", icon: BarChart3, id: "overview" },
-    { title: "Clients", icon: Users, id: "clients" },
-    { title: "Workouts", icon: Dumbbell, id: "workouts" },
-    { title: "Meal Plans", icon: Utensils, id: "meals" },
-    { title: "Subscriptions", icon: DollarSign, id: "subscriptions" },
-    { title: "Schedule", icon: Calendar, id: "schedule" },
-    { title: "Analytics", icon: PieChart, id: "analytics" },
-    { title: "Settings", icon: Settings, id: "settings" },
+  const { signOut } = useAuth();
+  
+  // Get the current tab from the URL query parameters
+  const searchParams = new URLSearchParams(location.search);
+  const currentTab = searchParams.get('tab') || 'overview';
+  
+  // Helper to create URL with tab query parameter
+  const createTabUrl = (tab: string) => {
+    return `/dashboard?tab=${tab}`;
+  };
+  
+  // Navigation items
+  const navItems = [
+    {
+      title: "Overview",
+      icon: LayoutDashboard,
+      href: createTabUrl("overview"),
+      active: currentTab === "overview"
+    },
+    {
+      title: "Clients",
+      icon: Users,
+      href: createTabUrl("clients"),
+      active: currentTab === "clients"
+    },
+    {
+      title: "Subscriptions",
+      icon: CreditCard,
+      href: createTabUrl("subscriptions"),
+      active: currentTab === "subscriptions"
+    },
+    {
+      title: "Workouts",
+      icon: Dumbbell,
+      href: createTabUrl("workouts"),
+      active: currentTab === "workouts"
+    },
+    {
+      title: "Meal Plans",
+      icon: Utensils,
+      href: createTabUrl("meals"),
+      active: currentTab === "meals"
+    },
+    {
+      title: "Schedule",
+      icon: Calendar,
+      href: createTabUrl("schedule"),
+      active: currentTab === "schedule"
+    },
+    {
+      title: "Analytics",
+      icon: BarChart,
+      href: createTabUrl("analytics"),
+      active: currentTab === "analytics"
+    },
+    {
+      title: "Messages",
+      icon: MessageSquare,
+      href: createTabUrl("messages"),
+      active: currentTab === "messages"
+    },
+    {
+      title: "Settings",
+      icon: Settings,
+      href: createTabUrl("settings"),
+      active: currentTab === "settings"
+    }
   ];
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-4">
-        <div className="flex items-center space-x-2">
-          <Dumbbell className="h-6 w-6 text-primary" />
-          <span className="text-lg font-semibold">FitTrainer</span>
-        </div>
+      <SidebarHeader>
+        <span className="text-xl font-bold">FitPro</span>
       </SidebarHeader>
       
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.id}>
-                  <SidebarMenuButton 
-                    onClick={() => navigate(`/dashboard?tab=${item.id}`)}
-                  >
-                    <item.icon className="h-5 w-5 mr-3" />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        
-        <SidebarGroup>
-          <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/workout/create")}>
-                  <Dumbbell className="h-5 w-5 mr-3" />
-                  <span>New Workout Plan</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/meal-plan/create")}>
-                  <Utensils className="h-5 w-5 mr-3" />
-                  <span>New Meal Plan</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/clients/add")}>
-                  <User className="h-5 w-5 mr-3" />
-                  <span>Add Client</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/videos/upload")}>
-                  <Video className="h-5 w-5 mr-3" />
-                  <span>Upload Video</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/subscription/create")}>
-                  <DollarSign className="h-5 w-5 mr-3" />
-                  <span>Create Subscription</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+      <SidebarNav 
+        items={navItems} 
+        onSelect={(href) => navigate(href)}
+      />
       
-      <SidebarFooter className="p-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            T
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">Trainer Name</p>
-            <p className="text-xs text-muted-foreground truncate">trainer@example.com</p>
-          </div>
-        </div>
+      <SidebarFooter>
+        <button 
+          onClick={() => signOut()}
+          className="w-full flex items-center px-3 py-2 text-sm rounded-md hover:bg-muted"
+        >
+          <LogOut className="h-4 w-4 mr-3" />
+          <span>Sign out</span>
+        </button>
       </SidebarFooter>
     </Sidebar>
   );

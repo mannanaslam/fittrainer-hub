@@ -1,279 +1,416 @@
-import { Link } from "react-router-dom";
-import { ArrowLeft, BarChart3, Dumbbell, Calendar, MessageCircle, Clock } from "lucide-react";
+
+import { useState } from "react";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Container } from "@/components/ui/Container";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClientProfile } from "@/components/dashboard/ClientProfile";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { ClientProgress } from "@/components/dashboard/ClientProgress";
+import { ClientCommunication } from "@/components/dashboard/ClientCommunication";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-
-// Sample client data
-const client = {
-  id: "1",
-  name: "Alex Johnson",
-  email: "alex.johnson@example.com",
-  phone: "+1 (555) 123-4567",
-  joinDate: "June 15, 2023",
-  status: "active" as const,
-  goals: ["Weight Loss", "Strength", "Endurance"],
-  progress: 68,
-  nextSession: "Wednesday, 2pm",
-  plan: "Premium",
-  measurements: {
-    weight: "175 lbs",
-    height: "5'10\"",
-    bodyFat: "18%"
-  },
-  recentWorkouts: [
-    {
-      name: "Full Body Strength",
-      date: "Yesterday",
-      completed: true
-    },
-    {
-      name: "HIIT Cardio",
-      date: "3 days ago",
-      completed: true
-    },
-    {
-      name: "Upper Body Focus",
-      date: "1 week ago",
-      completed: false
-    }
-  ]
-};
-
-// Sample workout plans
-const workoutPlans = [
-  {
-    id: 1,
-    name: "Full Body Strength",
-    type: "Strength",
-    frequency: "3x per week",
-    duration: "45 min",
-    progress: 70
-  },
-  {
-    id: 2,
-    name: "HIIT Cardio",
-    type: "Cardio",
-    frequency: "2x per week",
-    duration: "30 min",
-    progress: 50
-  },
-  {
-    id: 3,
-    name: "Recovery & Mobility",
-    type: "Recovery",
-    frequency: "2x per week",
-    duration: "20 min",
-    progress: 25
-  }
-];
-
-// Sample appointments
-const appointments = [
-  {
-    id: 1,
-    date: "Oct 24, 2023",
-    time: "2:00 PM",
-    type: "1-on-1 Training",
-    status: "Upcoming"
-  },
-  {
-    id: 2,
-    date: "Oct 31, 2023",
-    time: "2:00 PM",
-    type: "1-on-1 Training",
-    status: "Upcoming"
-  },
-  {
-    id: 3,
-    date: "Oct 17, 2023",
-    time: "2:00 PM",
-    type: "1-on-1 Training",
-    status: "Completed"
-  }
-];
-
-// Sample progress data
-const progressData = [
-  {
-    metric: "Weight",
-    current: "175 lbs",
-    initial: "190 lbs",
-    goal: "165 lbs",
-    progress: 60
-  },
-  {
-    metric: "Body Fat",
-    current: "18%",
-    initial: "22%",
-    goal: "15%",
-    progress: 57
-  },
-  {
-    metric: "Bench Press",
-    current: "185 lbs",
-    initial: "155 lbs",
-    goal: "225 lbs",
-    progress: 43
-  },
-  {
-    metric: "5K Time",
-    current: "26 min",
-    initial: "30 min",
-    goal: "24 min",
-    progress: 67
-  }
-];
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Activity, CalendarDays, FileText, MessageSquare, Star, UserRound } from "lucide-react";
 
 const ClientDetails = () => {
+  const [activeTab, setActiveTab] = useState("overview");
+  
+  // Mock client data
+  const client = {
+    id: "1",
+    name: "John Doe",
+    email: "john.doe@example.com",
+    joinDate: "October 5, 2023",
+    subscription: "Premium",
+    goals: ["Weight Loss", "Muscle Tone", "Improved Mobility"],
+    nextSession: "October 18, 2023 at 10:00 AM"
+  };
+  
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-1 pt-24 pb-12">
-        <Container>
-          <div className="mb-6">
-            <Link to="/dashboard" className="flex items-center text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Link>
+    <DashboardLayout>
+      <Container>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">{client.name}</h1>
+            <p className="text-muted-foreground">{client.email} • Joined {client.joinDate}</p>
           </div>
           
-          <ClientProfile client={client} />
+          <div className="flex space-x-2">
+            <Button variant="outline">
+              <CalendarDays className="h-4 w-4 mr-2" />
+              Schedule Session
+            </Button>
+            <Button>
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Message
+            </Button>
+          </div>
+        </div>
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="mb-6">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="progress">Progress</TabsTrigger>
+            <TabsTrigger value="workouts">Workouts</TabsTrigger>
+            <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
+            <TabsTrigger value="messages">Messages</TabsTrigger>
+            <TabsTrigger value="notes">Notes</TabsTrigger>
+          </TabsList>
           
-          <div className="mt-8">
-            <Tabs defaultValue="workouts">
-              <TabsList className="grid grid-cols-4 w-full max-w-md mb-6">
-                <TabsTrigger value="workouts" className="flex gap-2 items-center">
-                  <Dumbbell className="h-4 w-4" />
-                  <span className="hidden sm:inline">Workouts</span>
-                </TabsTrigger>
-                <TabsTrigger value="progress" className="flex gap-2 items-center">
-                  <BarChart3 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Progress</span>
-                </TabsTrigger>
-                <TabsTrigger value="schedule" className="flex gap-2 items-center">
-                  <Calendar className="h-4 w-4" />
-                  <span className="hidden sm:inline">Schedule</span>
-                </TabsTrigger>
-                <TabsTrigger value="messages" className="flex gap-2 items-center">
-                  <MessageCircle className="h-4 w-4" />
-                  <span className="hidden sm:inline">Messages</span>
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="workouts" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {workoutPlans.map((plan) => (
-                    <div key={plan.id} className="border rounded-lg p-4 hover:border-primary hover:bg-primary/5 cursor-pointer">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-medium">{plan.name}</h3>
-                          <p className="text-sm text-muted-foreground">{plan.type}</p>
-                        </div>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
-                          {plan.progress}%
-                        </div>
+          <TabsContent value="overview">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <UserRound className="h-5 w-5 mr-2" />
+                    Client Profile
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Subscription</h3>
+                        <p>{client.subscription}</p>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm mb-3">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span>{plan.frequency}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span>{plan.duration}</span>
-                        </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Next Session</h3>
+                        <p>{client.nextSession}</p>
                       </div>
-                      <Progress value={plan.progress} className="h-1.5" />
                     </div>
-                  ))}
-                </div>
-              </TabsContent>
+                    
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Goals</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {client.goals.map((goal, index) => (
+                          <div key={index} className="bg-muted px-3 py-1 rounded-full text-sm">
+                            {goal}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Personal Notes</h3>
+                      <p className="text-sm">
+                        John is highly motivated but needs consistent guidance. He has a previous knee injury so we've modified his leg exercises. He prefers morning workouts and responds well to positive reinforcement.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
               
-              <TabsContent value="progress" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {progressData.map((item, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <h3 className="font-medium mb-3">{item.metric}</h3>
-                      <div className="grid grid-cols-3 gap-2 text-sm mb-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Activity className="h-5 w-5 mr-2" />
+                    Activity
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="border-l-2 border-muted pl-4 py-1">
+                      <p className="text-sm">Completed workout: Upper Body Strength</p>
+                      <p className="text-xs text-muted-foreground">Yesterday at 9:30 AM</p>
+                    </div>
+                    <div className="border-l-2 border-muted pl-4 py-1">
+                      <p className="text-sm">Skipped workout: Cardio Session</p>
+                      <p className="text-xs text-muted-foreground">October 10 at 6:00 PM</p>
+                    </div>
+                    <div className="border-l-2 border-muted pl-4 py-1">
+                      <p className="text-sm">Updated weight: 178 lbs (-2 lbs)</p>
+                      <p className="text-xs text-muted-foreground">October 8 at 8:15 AM</p>
+                    </div>
+                    <div className="border-l-2 border-muted pl-4 py-1">
+                      <p className="text-sm">Completed workout: Lower Body Focus</p>
+                      <p className="text-xs text-muted-foreground">October 7 at 10:00 AM</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <FileText className="h-5 w-5 mr-2" />
+                    Active Programs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
                         <div>
-                          <p className="text-muted-foreground mb-1">Starting</p>
-                          <p className="font-medium">{item.initial}</p>
+                          <h3 className="font-medium">12-Week Weight Loss Program</h3>
+                          <p className="text-sm text-muted-foreground">Started: Sep 15, 2023</p>
                         </div>
-                        <div>
-                          <p className="text-muted-foreground mb-1">Current</p>
-                          <p className="font-medium text-primary">{item.current}</p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground mb-1">Goal</p>
-                          <p className="font-medium">{item.goal}</p>
+                        <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                          In Progress
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Progress toward goal</span>
-                          <span className="text-sm font-medium">{item.progress}%</span>
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Progress</span>
+                            <span>Week 4 of 12</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div className="bg-primary h-2 rounded-full" style={{ width: "33%" }}></div>
+                          </div>
                         </div>
-                        <Progress value={item.progress} className="h-2" />
+                        <p className="text-sm">Focus: Progressive strength training with caloric deficit</p>
+                        <div className="flex justify-end">
+                          <Button variant="outline" size="sm">View Program</Button>
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="schedule" className="space-y-6">
-                <div className="border rounded-lg overflow-hidden">
-                  <div className="bg-muted p-4">
-                    <h3 className="font-medium">Upcoming Sessions</h3>
-                  </div>
-                  <div className="divide-y">
-                    {appointments.map((appointment) => (
-                      <div key={appointment.id} className="p-4 flex justify-between items-center">
+                    
+                    <div className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
                         <div>
-                          <p className="font-medium">{appointment.type}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {appointment.date} at {appointment.time}
-                          </p>
+                          <h3 className="font-medium">Nutrition Plan: Balanced Diet</h3>
+                          <p className="text-sm text-muted-foreground">Started: Sep 15, 2023</p>
                         </div>
-                        <div>
-                          <Badge 
-                            variant={appointment.status === "Upcoming" ? "default" : "secondary"}
-                            className={appointment.status === "Upcoming" ? "bg-blue-500" : ""}
-                          >
-                            {appointment.status}
-                          </Badge>
+                        <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                          Active
                         </div>
                       </div>
-                    ))}
+                      <p className="text-sm mb-3">Balanced macronutrient distribution with 1,800 daily calories target</p>
+                      <div className="grid grid-cols-3 gap-2 mb-3">
+                        <div className="text-center">
+                          <div className="text-sm font-medium">Protein</div>
+                          <div className="text-lg">30%</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-sm font-medium">Carbs</div>
+                          <div className="text-lg">45%</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-sm font-medium">Fats</div>
+                          <div className="text-lg">25%</div>
+                        </div>
+                      </div>
+                      <div className="flex justify-end">
+                        <Button variant="outline" size="sm">View Plan</Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </TabsContent>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Star className="h-5 w-5 mr-2" />
+                    Recent Achievements
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-800">
+                        <Star className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">5 Workouts Streak</h3>
+                        <p className="text-sm text-muted-foreground">Completed 5 consecutive workouts</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-800">
+                        <Star className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">Weight Goal</h3>
+                        <p className="text-sm text-muted-foreground">Lost first 5 pounds</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-800">
+                        <Star className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">Strength Milestone</h3>
+                        <p className="text-sm text-muted-foreground">Increased bench press by 20%</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
               
-              <TabsContent value="messages" className="space-y-6">
-                <div className="border rounded-lg h-96 flex items-center justify-center">
-                  <div className="text-center max-w-md space-y-3">
-                    <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto" />
-                    <h3 className="text-lg font-medium">Your messages with Alex will appear here</h3>
-                    <p className="text-muted-foreground">
-                      Send workout updates, nutrition advice, or answer any questions they might have.
-                    </p>
-                    <Button>Start Conversation</Button>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <CalendarDays className="h-5 w-5 mr-2" />
+                    Upcoming Sessions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 bg-primary/10 rounded-lg flex flex-col items-center justify-center">
+                        <span className="text-xs font-medium">OCT</span>
+                        <span className="text-sm font-bold">18</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium">Personal Training Session</h3>
+                        <p className="text-sm text-muted-foreground">10:00 AM - 11:00 AM</p>
+                      </div>
+                      <Button variant="outline" size="sm">Reschedule</Button>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 bg-primary/10 rounded-lg flex flex-col items-center justify-center">
+                        <span className="text-xs font-medium">OCT</span>
+                        <span className="text-sm font-bold">21</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium">Progress Review</h3>
+                        <p className="text-sm text-muted-foreground">2:00 PM - 2:30 PM</p>
+                      </div>
+                      <Button variant="outline" size="sm">Reschedule</Button>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 bg-primary/10 rounded-lg flex flex-col items-center justify-center">
+                        <span className="text-xs font-medium">OCT</span>
+                        <span className="text-sm font-bold">25</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium">Personal Training Session</h3>
+                        <p className="text-sm text-muted-foreground">10:00 AM - 11:00 AM</p>
+                      </div>
+                      <Button variant="outline" size="sm">Reschedule</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="progress">
+            <ClientProgress />
+          </TabsContent>
+          
+          <TabsContent value="workouts">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Workout Plans</CardTitle>
+                    <CardDescription>Manage client's workout plans</CardDescription>
+                  </div>
+                  <Button>
+                    Create New Plan
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="h-40 bg-muted flex items-center justify-center">
+                      <Activity className="h-10 w-10 text-muted-foreground/50" />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-medium mb-1">Upper Body Strength</h3>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Focus on chest, shoulders, and arms
+                      </p>
+                      <div className="flex justify-between text-sm mb-4">
+                        <span>6 exercises</span>
+                        <span>45 min</span>
+                      </div>
+                      <Button variant="outline" className="w-full">View Plan</Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="h-40 bg-muted flex items-center justify-center">
+                      <Activity className="h-10 w-10 text-muted-foreground/50" />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-medium mb-1">Lower Body Focus</h3>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Strengthen legs and improve mobility
+                      </p>
+                      <div className="flex justify-between text-sm mb-4">
+                        <span>5 exercises</span>
+                        <span>40 min</span>
+                      </div>
+                      <Button variant="outline" className="w-full">View Plan</Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="h-40 bg-muted flex items-center justify-center">
+                      <Activity className="h-10 w-10 text-muted-foreground/50" />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-medium mb-1">Cardio & HIIT</h3>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        High intensity intervals for fat burning
+                      </p>
+                      <div className="flex justify-between text-sm mb-4">
+                        <span>8 exercises</span>
+                        <span>30 min</span>
+                      </div>
+                      <Button variant="outline" className="w-full">View Plan</Button>
+                    </div>
                   </div>
                 </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </Container>
-      </main>
-      
-      <Footer />
-    </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="nutrition">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Nutrition</CardTitle>
+                    <CardDescription>Manage meal plans and nutrition goals</CardDescription>
+                  </div>
+                  <Button>
+                    Create Meal Plan
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center py-8">
+                  Nutrition tracking will be enhanced in future updates.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="messages">
+            <ClientCommunication />
+          </TabsContent>
+          
+          <TabsContent value="notes">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Session Notes</CardTitle>
+                    <CardDescription>Track client progress and session outcomes</CardDescription>
+                  </div>
+                  <Button>
+                    Add Note
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center py-8">
+                  Session notes feature will be enhanced in future updates.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </Container>
+    </DashboardLayout>
   );
 };
 

@@ -7,6 +7,8 @@ import { ClientsTab } from "./tabs/ClientsTab";
 import { SubscriptionsTab } from "./tabs/SubscriptionsTab";
 import { MealsTab } from "./tabs/MealsTab";
 import { WorkoutTab } from "./tabs/WorkoutTab";
+import { ScheduleTab } from "./tabs/ScheduleTab";
+import { AnalyticsTab } from "./tabs/AnalyticsTab";
 import { ComingSoonTab } from "./tabs/ComingSoonTab";
 
 export function Dashboard() {
@@ -28,9 +30,9 @@ export function Dashboard() {
       {activeTab === "clients" && <ClientsTab />}
       {activeTab === "subscriptions" && <SubscriptionsTab />}
       {activeTab === "meals" && <MealsTab />}
-      {activeTab === "schedule" && <ComingSoonTab tabName="schedule" />}
+      {activeTab === "schedule" && <ScheduleTab />}
       {activeTab === "workouts" && <WorkoutTab />}
-      {activeTab === "analytics" && <ComingSoonTab tabName="analytics" />}
+      {activeTab === "analytics" && <AnalyticsTab />}
       {activeTab === "settings" && <ComingSoonTab tabName="settings" />}
     </DashboardLayout>
   );

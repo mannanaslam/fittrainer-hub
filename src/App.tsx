@@ -10,6 +10,7 @@ import CreateMealPlan from "@/pages/CreateMealPlan";
 import CreateWorkout from "@/pages/CreateWorkout";
 import WorkoutPlan from "@/pages/WorkoutPlan";
 import Exercises from "@/pages/Exercises";
+import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
 import { Toaster } from "@/components/ui/toaster";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -31,6 +32,7 @@ function App() {
           <Route path="/workout-plan/create" element={<CreateWorkout />} />
           <Route path="/workout-plan/:id" element={<WorkoutPlan />} />
           <Route path="/exercises" element={<Exercises />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
