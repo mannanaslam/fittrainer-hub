@@ -1,7 +1,7 @@
 
 // Use the official Supabase client from the integrations folder
 import { supabase as officialClient } from '@/integrations/supabase/client';
-import { Profile } from '@/types/supabase';
+import { Profile, Workout, MealPlan, Subscription } from '@/types/supabase';
 
 // Re-export the official client to maintain backward compatibility
 export const supabase = officialClient;
@@ -58,6 +58,208 @@ export async function getUserProfileById(userId: string): Promise<Profile | null
     return data as Profile;
   } catch (error) {
     console.error('Error in getUserProfileById:', error);
+    return null;
+  }
+}
+
+// Get all clients (profiles with role 'client')
+export async function getAllClients(): Promise<Profile[]> {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'client');
+    
+    if (error) {
+      console.error('Error fetching clients:', error);
+      return [];
+    }
+    
+    return data as Profile[];
+  } catch (error) {
+    console.error('Error in getAllClients:', error);
+    return [];
+  }
+}
+
+// Get all workouts with optional filtering by trainer or client
+export async function getWorkouts(options?: { trainerId?: string; clientId?: string }): Promise<Workout[]> {
+  try {
+    let query = supabase.from('workouts').select('*');
+    
+    if (options?.trainerId) {
+      query = query.eq('trainer_id', options.trainerId);
+    }
+    
+    if (options?.clientId) {
+      query = query.eq('client_id', options.clientId);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching workouts:', error);
+      return [];
+    }
+    
+    return data as Workout[];
+  } catch (error) {
+    console.error('Error in getWorkouts:', error);
+    return [];
+  }
+}
+
+// Get a specific workout by ID
+export async function getWorkoutById(workoutId: string): Promise<Workout | null> {
+  try {
+    const { data, error } = await supabase
+      .from('workouts')
+      .select('*')
+      .eq('id', workoutId)
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error fetching workout by ID:', error);
+      return null;
+    }
+    
+    return data as Workout;
+  } catch (error) {
+    console.error('Error in getWorkoutById:', error);
+    return null;
+  }
+}
+
+// Create a new workout
+export async function createWorkout(workout: Omit<Workout, 'id' | 'created_at'>): Promise<Workout | null> {
+  try {
+    const { data, error } = await supabase
+      .from('workouts')
+      .insert(workout)
+      .select()
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error creating workout:', error);
+      return null;
+    }
+    
+    return data as Workout;
+  } catch (error) {
+    console.error('Error in createWorkout:', error);
+    return null;
+  }
+}
+
+// Get all meal plans with optional filtering by trainer or client
+export async function getMealPlans(options?: { trainerId?: string; clientId?: string }): Promise<MealPlan[]> {
+  try {
+    let query = supabase.from('meal_plans').select('*');
+    
+    if (options?.trainerId) {
+      query = query.eq('trainer_id', options.trainerId);
+    }
+    
+    if (options?.clientId) {
+      query = query.eq('client_id', options.clientId);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching meal plans:', error);
+      return [];
+    }
+    
+    return data as MealPlan[];
+  } catch (error) {
+    console.error('Error in getMealPlans:', error);
+    return [];
+  }
+}
+
+// Get a specific meal plan by ID
+export async function getMealPlanById(mealPlanId: string): Promise<MealPlan | null> {
+  try {
+    const { data, error } = await supabase
+      .from('meal_plans')
+      .select('*')
+      .eq('id', mealPlanId)
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error fetching meal plan by ID:', error);
+      return null;
+    }
+    
+    return data as MealPlan;
+  } catch (error) {
+    console.error('Error in getMealPlanById:', error);
+    return null;
+  }
+}
+
+// Create a new meal plan
+export async function createMealPlan(mealPlan: Omit<MealPlan, 'id' | 'created_at'>): Promise<MealPlan | null> {
+  try {
+    const { data, error } = await supabase
+      .from('meal_plans')
+      .insert(mealPlan)
+      .select()
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error creating meal plan:', error);
+      return null;
+    }
+    
+    return data as MealPlan;
+  } catch (error) {
+    console.error('Error in createMealPlan:', error);
+    return null;
+  }
+}
+
+// Get all subscriptions with optional filtering by user
+export async function getSubscriptions(userId?: string): Promise<Subscription[]> {
+  try {
+    let query = supabase.from('subscriptions').select('*');
+    
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching subscriptions:', error);
+      return [];
+    }
+    
+    return data as Subscription[];
+  } catch (error) {
+    console.error('Error in getSubscriptions:', error);
+    return [];
+  }
+}
+
+// Create a new subscription
+export async function createSubscription(subscription: Omit<Subscription, 'id' | 'created_at'>): Promise<Subscription | null> {
+  try {
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .insert(subscription)
+      .select()
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error creating subscription:', error);
+      return null;
+    }
+    
+    return data as Subscription;
+  } catch (error) {
+    console.error('Error in createSubscription:', error);
     return null;
   }
 }

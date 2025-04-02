@@ -7,79 +7,37 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { MealPlan } from "@/types/supabase";
 import { Badge } from "@/components/ui/badge";
+import { getMealPlans } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
 
 export function MealsTab() {
   const navigate = useNavigate();
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const { profile } = useAuth();
   
-  // Mock data for demonstration
   useEffect(() => {
-    const mockMealPlans: MealPlan[] = [
-      {
-        id: "1",
-        created_at: new Date().toISOString(),
-        trainer_id: "trainer-1",
-        client_id: "client-1",
-        title: "Weight Loss Meal Plan",
-        description: "Low calorie meal plan focused on fat loss",
-        meals: [
-          {
-            name: "Breakfast",
-            time: "8:00 AM",
-            calories: 350,
-            protein: 25,
-            carbs: 30,
-            fats: 15,
-            notes: "High protein breakfast"
-          },
-          {
-            name: "Lunch",
-            time: "12:30 PM",
-            calories: 450,
-            protein: 35,
-            carbs: 40,
-            fats: 15,
-            notes: "Include green vegetables"
-          }
-        ]
-      },
-      {
-        id: "2",
-        created_at: new Date().toISOString(),
-        trainer_id: "trainer-1",
-        client_id: "client-2",
-        title: "Muscle Building Plan",
-        description: "High protein plan for muscle growth",
-        meals: [
-          {
-            name: "Breakfast",
-            time: "7:00 AM",
-            calories: 500,
-            protein: 40,
-            carbs: 60,
-            fats: 10,
-            notes: "Protein shake and oats"
-          },
-          {
-            name: "Mid-morning Snack",
-            time: "10:00 AM",
-            calories: 250,
-            protein: 20,
-            carbs: 20,
-            fats: 10,
-            notes: "Greek yogurt and nuts"
-          }
-        ]
+    const fetchMealPlans = async () => {
+      setIsLoading(true);
+      try {
+        // If user is a trainer, get their created meal plans
+        // If user is a client, get meal plans assigned to them
+        const options = profile?.role === 'trainer' 
+          ? { trainerId: profile.id } 
+          : { clientId: profile.id };
+          
+        const fetchedMealPlans = await getMealPlans(options);
+        setMealPlans(fetchedMealPlans);
+      } catch (error) {
+        console.error("Error fetching meal plans:", error);
+      } finally {
+        setIsLoading(false);
       }
-    ];
-    
-    setTimeout(() => {
-      setMealPlans(mockMealPlans);
-      setIsLoading(false);
-    }, 500);
-  }, []);
+    };
+
+    fetchMealPlans();
+  }, [profile]);
   
   const filteredMealPlans = mealPlans.filter(plan => 
     plan.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -129,19 +87,19 @@ export function MealsTab() {
               </div>
               <div className="p-4">
                 <div className="flex justify-between mb-3">
-                  <span className="text-xs font-medium text-muted-foreground">Meals: {plan.meals.length}</span>
+                  <span className="text-xs font-medium text-muted-foreground">Meals: {plan.meals?.length || 0}</span>
                   <Badge variant="outline">
                     {new Date(plan.created_at).toLocaleDateString()}
                   </Badge>
                 </div>
                 <ul className="space-y-2 mb-4">
-                  {plan.meals.slice(0, 2).map((meal, index) => (
+                  {plan.meals && plan.meals.slice(0, 2).map((meal, index) => (
                     <li key={index} className="text-sm">
                       <span className="font-medium">{meal.name}</span> • {meal.time} • 
                       <span className="text-muted-foreground"> {meal.calories} kcal</span>
                     </li>
                   ))}
-                  {plan.meals.length > 2 && (
+                  {plan.meals && plan.meals.length > 2 && (
                     <li className="text-xs text-muted-foreground">+ {plan.meals.length - 2} more meals</li>
                   )}
                 </ul>

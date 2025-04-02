@@ -3,21 +3,15 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { User, AuthError } from '@supabase/supabase-js';
 import { Profile } from '@/types/supabase';
+import { useToast } from '@/hooks/use-toast';
 
 export const useSupabaseAuth = () => {
   const [user, setUser] = useState<User | null>(null);
-  // Default mock profile for demonstration when not authenticated
-  const [profile, setProfile] = useState<Profile | null>({
-    id: "mock-user-id",
-    email: "demo@example.com",
-    name: "Demo User",
-    role: "trainer", // Can be changed to "client" as needed
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  });
-  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Fetch user profile data - not actively used in demo mode
+  // Fetch user profile data
   const fetchProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -38,54 +32,146 @@ export const useSupabaseAuth = () => {
     }
   };
 
-  // Auth state listener - disabled in demo mode
+  // Auth state listener
   useEffect(() => {
-    console.log("Auth is temporarily disabled for demo purposes");
-    setLoading(false);
+    // Set up auth state listener first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          const userProfile = await fetchProfile(session.user.id);
+          setProfile(userProfile);
+        } else {
+          setProfile(null);
+        }
+        
+        setLoading(false);
+      }
+    );
+    
+    // Check for existing session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        const userProfile = await fetchProfile(session.user.id);
+        setProfile(userProfile);
+      }
+      
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  // These functions will not actually perform authentication in demo mode
-  const signUp = async (email: string, password: string, userData: any) => {
-    console.log("Sign up is temporarily disabled for demo purposes");
-    return { data: null, error: null };
-  };
-
-  const signIn = async (email: string, password: string) => {
-    console.log("Sign in is temporarily disabled for demo purposes");
-    
-    // Set mock profile based on email (to simulate different user types)
-    if (email.includes('trainer')) {
+  // For demo purposes, if no user exists, use a mock profile
+  useEffect(() => {
+    if (!loading && !user) {
+      // Demo mode - set mock profile for demonstration
       setProfile({
-        id: "trainer-mock-id",
-        email: "trainer@example.com",
-        name: "Demo Trainer",
-        role: "trainer",
-        specialization: "Strength Training",
-        experience: 5,
-        bio: "Professional trainer with 5 years of experience",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
-    } else {
-      setProfile({
-        id: "client-mock-id",
-        email: "client@example.com",
-        name: "Demo Client",
-        role: "client",
-        goals: ["Weight Loss", "Muscle Gain"],
-        experience_level: "intermediate",
-        activity_level: 3,
+        id: "mock-user-id",
+        email: "demo@example.com",
+        name: "Demo User",
+        role: "trainer", // Can be changed to "client" as needed
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       });
     }
-    
-    return { data: null, error: null };
+  }, [loading, user]);
+
+  const signUp = async (email: string, password: string, userData: any) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userData
+        }
+      });
+      
+      if (error) {
+        toast({
+          title: "Signup failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Signup successful",
+          description: "Please check your email to confirm your account."
+        });
+      }
+      
+      return { data, error };
+    } catch (error) {
+      console.error("Error in signUp:", error);
+      
+      const authError = error as AuthError;
+      toast({
+        title: "Signup failed",
+        description: authError.message || "An unknown error occurred",
+        variant: "destructive"
+      });
+      
+      return { data: null, error: authError };
+    }
+  };
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Login successful",
+          description: "You have been successfully logged in."
+        });
+      }
+      
+      return { data, error };
+    } catch (error) {
+      console.error("Error in signIn:", error);
+      
+      const authError = error as AuthError;
+      toast({
+        title: "Login failed",
+        description: authError.message || "An unknown error occurred",
+        variant: "destructive"
+      });
+      
+      return { data: null, error: authError };
+    }
   };
 
   const signOut = async () => {
-    console.log("Sign out is temporarily disabled for demo purposes");
-    // Don't actually sign out in demo mode
+    try {
+      await supabase.auth.signOut();
+      
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out."
+      });
+    } catch (error) {
+      console.error("Error in signOut:", error);
+      
+      toast({
+        title: "Logout failed",
+        description: "An error occurred while logging out.",
+        variant: "destructive"
+      });
+    }
   };
 
   return {
