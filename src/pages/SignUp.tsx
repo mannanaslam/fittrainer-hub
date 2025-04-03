@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Dumbbell, Mail, User, Lock, CheckCircle, Eye, EyeOff } from "lucide-react";
@@ -22,8 +21,8 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/hooks/useAuth";
 
-// Step 1 validation schema
 const stepOneSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
@@ -31,21 +30,18 @@ const stepOneSchema = z.object({
   userType: z.enum(["client", "trainer"])
 });
 
-// Step 2 validation schema for trainers
 const trainerStepTwoSchema = z.object({
   specialization: z.string().min(3, "Please specify your specialization"),
   experience: z.number().min(0, "Experience cannot be negative"),
   bio: z.string().min(20, "Bio should be at least 20 characters")
 });
 
-// Step 2 validation schema for clients
 const clientStepTwoSchema = z.object({
   goals: z.array(z.string()).min(1, "Please select at least one goal"),
   experienceLevel: z.string().min(1, "Please select your experience level"),
   activityLevel: z.number().min(0, "Activity level cannot be negative").max(7, "Activity level cannot exceed 7 days")
 });
 
-// Step 3 validation schema
 const stepThreeSchema = z.object({
   plan: z.string().min(1, "Please select a subscription plan")
 });
@@ -56,10 +52,11 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string>("free");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signUp } = useAuth();
   
-  // Step 1 form
   const stepOneForm = useForm<z.infer<typeof stepOneSchema>>({
     resolver: zodResolver(stepOneSchema),
     defaultValues: {
@@ -70,7 +67,6 @@ const SignUp = () => {
     }
   });
 
-  // Step 2 form for trainers
   const trainerStepTwoForm = useForm<z.infer<typeof trainerStepTwoSchema>>({
     resolver: zodResolver(trainerStepTwoSchema),
     defaultValues: {
@@ -80,7 +76,6 @@ const SignUp = () => {
     }
   });
 
-  // Step 2 form for clients
   const clientStepTwoForm = useForm<z.infer<typeof clientStepTwoSchema>>({
     resolver: zodResolver(clientStepTwoSchema),
     defaultValues: {
@@ -90,7 +85,6 @@ const SignUp = () => {
     }
   });
 
-  // Step 3 form
   const stepThreeForm = useForm<z.infer<typeof stepThreeSchema>>({
     resolver: zodResolver(stepThreeSchema),
     defaultValues: {
@@ -147,7 +141,6 @@ const SignUp = () => {
     const valid = await stepThreeForm.trigger();
     if (!valid) return;
 
-    // In a real application, we would send all collected data to the backend
     const userData = {
       ...stepOneForm.getValues(),
       ...(userType === "trainer" 
@@ -158,16 +151,53 @@ const SignUp = () => {
     
     console.log("User data to be saved:", userData);
     
-    toast({
-      title: "Sign up successful!",
-      description: "Welcome to FitTrainer. Your account has been created.",
-    });
+    setIsSubmitting(true);
     
-    // Redirect based on user type
-    if (userType === "trainer") {
-      navigate("/dashboard");
-    } else {
-      navigate("/"); // Redirect clients to home page
+    try {
+      const { name, email, password, userType } = userData;
+      
+      const { data, error } = await signUp(email, password, {
+        name,
+        userType,
+        ...(userType === "trainer" ? {
+          specialization: userData.specialization,
+          experience: userData.experience,
+          bio: userData.bio,
+        } : {
+          goals: userData.goals,
+          experienceLevel: userData.experienceLevel,
+          activityLevel: userData.activityLevel,
+        }),
+        plan: userData.plan
+      });
+      
+      if (error) {
+        console.error("Sign up error:", error);
+        toast({
+          title: "Sign up failed",
+          description: error.message || "There was a problem creating your account",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      console.log("Sign up successful:", data);
+      
+      toast({
+        title: "Sign up successful!",
+        description: "Please check your email to confirm your account.",
+      });
+      
+      navigate("/login");
+    } catch (error) {
+      console.error("Error during sign up:", error);
+      toast({
+        title: "Sign up failed",
+        description: "There was a problem creating your account",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -611,11 +641,11 @@ const SignUp = () => {
                   />
                   
                   <div className="flex space-x-3">
-                    <Button variant="outline" type="button" className="flex-1" onClick={handleBack}>
+                    <Button variant="outline" type="button" className="flex-1" onClick={handleBack} disabled={isSubmitting}>
                       Back
                     </Button>
-                    <Button type="submit" className="flex-1">
-                      Complete Sign Up
+                    <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                      {isSubmitting ? "Creating Account..." : "Complete Sign Up"}
                     </Button>
                   </div>
                 </form>

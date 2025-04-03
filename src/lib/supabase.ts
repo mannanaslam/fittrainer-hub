@@ -1,4 +1,3 @@
-
 // Use the official Supabase client from the integrations folder
 import { supabase as officialClient } from '@/integrations/supabase/client';
 import { Profile, Workout, MealPlan, Subscription } from '@/types/supabase';
@@ -260,6 +259,35 @@ export async function createSubscription(subscription: Omit<Subscription, 'id' |
     return data as Subscription;
   } catch (error) {
     console.error('Error in createSubscription:', error);
+    return null;
+  }
+}
+
+// Helper function to create or update a user profile
+export async function upsertUserProfile(profileData: Partial<Profile>): Promise<Profile | null> {
+  try {
+    if (!profileData.id) {
+      console.error('Profile ID is required for upsert');
+      return null;
+    }
+    
+    console.log("Upserting profile:", profileData);
+    
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert(profileData)
+      .select()
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error upserting user profile:', error);
+      return null;
+    }
+    
+    console.log("Profile upserted successfully:", data);
+    return data as Profile;
+  } catch (error) {
+    console.error('Error in upsertUserProfile:', error);
     return null;
   }
 }

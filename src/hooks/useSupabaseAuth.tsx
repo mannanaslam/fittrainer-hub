@@ -101,9 +101,10 @@ export const useSupabaseAuth = () => {
       
       console.log("Sign up successful:", data);
       
-      // Instead of relying on the trigger, let's create the profile manually as well
-      // This is belt and suspenders approach in case the DB trigger fails
+      // Create profile record directly if the trigger doesn't kick in
+      // This is a safety measure
       if (data.user) {
+        console.log("Creating profile record for user:", data.user.id);
         // Create profile record
         const { error: profileError } = await supabase
           .from('profiles')
@@ -126,6 +127,13 @@ export const useSupabaseAuth = () => {
         
         if (profileError) {
           console.error("Error creating profile:", profileError);
+          toast({
+            title: "Profile creation issue",
+            description: "Your account was created but there was an issue with your profile. Please contact support.",
+            variant: "destructive"
+          });
+        } else {
+          console.log("Profile created successfully");
         }
       }
       

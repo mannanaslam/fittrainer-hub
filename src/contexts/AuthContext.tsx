@@ -49,10 +49,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
     
+    // Check if profile exists for the authenticated user
+    if (!profile && !loading) {
+      console.log("User authenticated but no profile found, might need to recreate profile");
+      // You could add logic here to recreate a profile if needed
+    }
+    
     // If authenticated, render the children
     console.log("User authenticated, rendering content");
     return <>{children}</>;
   };
+
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log("Auth context state updated:", { user, profile, loading });
+  }, [user, profile, loading]);
 
   return (
     <AuthContext.Provider
