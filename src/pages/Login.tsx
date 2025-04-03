@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Dumbbell, Mail, Lock, Eye, EyeOff, WifiOff } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -33,10 +34,6 @@ const Login = () => {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
-  useEffect(() => {
-    navigate("/dashboard");
-  }, []);
-  
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -54,21 +51,29 @@ const Login = () => {
       
       const { data, error } = await signIn(values.email, values.password);
       
-      toast({
-        title: "Demo mode active",
-        description: "Authentication is temporarily disabled. Redirecting to dashboard.",
-      });
-      
-      navigate("/dashboard");
+      if (error) {
+        console.error("Login error:", error);
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else if (data.session) {
+        toast({
+          title: "Login successful",
+          description: "You have been successfully logged in.",
+        });
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error("Login failed:", error);
+      setConnectionError(true);
       
       toast({
-        title: "Demo mode active",
-        description: "Authentication is temporarily disabled. Redirecting to dashboard.",
+        title: "Login failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
       });
-      
-      navigate("/dashboard");
     } finally {
       setIsLoading(false);
     }
@@ -85,23 +90,31 @@ const Login = () => {
       form.setValue('email', email);
       form.setValue('password', password);
       
-      await signIn(email, password);
+      const { data, error } = await signIn(email, password);
       
-      toast({
-        title: "Demo mode active",
-        description: `Logged in as ${type}. Authentication is temporarily disabled.`,
-      });
-      
-      navigate("/dashboard");
+      if (error) {
+        console.error("Demo login error:", error);
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else if (data.session) {
+        toast({
+          title: "Login successful",
+          description: `Logged in as ${type}.`,
+        });
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error("Demo login failed:", error);
+      setConnectionError(true);
       
       toast({
-        title: "Demo mode active",
-        description: "Authentication is temporarily disabled. Redirecting to dashboard.",
+        title: "Login failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
       });
-      
-      navigate("/dashboard");
     } finally {
       setIsLoading(false);
     }
@@ -122,10 +135,6 @@ const Login = () => {
             <div className="text-center space-y-2">
               <h1 className="text-2xl font-bold">Welcome back</h1>
               <p className="text-muted-foreground">Sign in to your account to continue</p>
-              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                <p className="text-sm text-green-800 font-medium">Demo Mode Active</p>
-                <p className="text-xs text-green-700">Authentication is temporarily disabled.</p>
-              </div>
             </div>
             
             {connectionError && (

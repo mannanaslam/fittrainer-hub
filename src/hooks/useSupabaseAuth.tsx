@@ -67,21 +67,6 @@ export const useSupabaseAuth = () => {
     };
   }, []);
 
-  // For demo purposes, if no user exists, use a mock profile
-  useEffect(() => {
-    if (!loading && !user) {
-      // Demo mode - set mock profile for demonstration
-      setProfile({
-        id: "mock-user-id",
-        email: "demo@example.com",
-        name: "Demo User",
-        role: "trainer", // Can be changed to "client" as needed
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
-    }
-  }, [loading, user]);
-
   const signUp = async (email: string, password: string, userData: any) => {
     try {
       const { data, error } = await supabase.auth.signUp({

@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getSubscriptions } from "@/lib/supabase";
 import { Subscription } from "@/types/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 export function SubscriptionsTable() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   
   useEffect(() => {
     const fetchSubscriptions = async () => {
@@ -17,13 +19,18 @@ export function SubscriptionsTable() {
         setSubscriptions(fetchedSubscriptions);
       } catch (error) {
         console.error("Error fetching subscriptions:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load subscription data",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchSubscriptions();
-  }, []);
+  }, [toast]);
   
   // Helper to format the price from the plan string
   const formatPrice = (plan: string) => {
