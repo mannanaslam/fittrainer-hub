@@ -46,6 +46,9 @@ const stepThreeSchema = z.object({
   plan: z.string().min(1, "Please select a subscription plan")
 });
 
+type TrainerStepTwoData = z.infer<typeof trainerStepTwoSchema>;
+type ClientStepTwoData = z.infer<typeof clientStepTwoSchema>;
+
 const SignUp = () => {
   const [userType, setUserType] = useState<"client" | "trainer">("client");
   const [step, setStep] = useState(1);
@@ -67,7 +70,7 @@ const SignUp = () => {
     }
   });
 
-  const trainerStepTwoForm = useForm<z.infer<typeof trainerStepTwoSchema>>({
+  const trainerStepTwoForm = useForm<TrainerStepTwoData>({
     resolver: zodResolver(trainerStepTwoSchema),
     defaultValues: {
       specialization: "",
@@ -76,7 +79,7 @@ const SignUp = () => {
     }
   });
 
-  const clientStepTwoForm = useForm<z.infer<typeof clientStepTwoSchema>>({
+  const clientStepTwoForm = useForm<ClientStepTwoData>({
     resolver: zodResolver(clientStepTwoSchema),
     defaultValues: {
       goals: [],
@@ -144,9 +147,13 @@ const SignUp = () => {
     const stepOneData = stepOneForm.getValues();
     const { userType } = stepOneData;
     
-    const stepTwoData = userType === "trainer" 
-      ? trainerStepTwoForm.getValues() 
-      : clientStepTwoForm.getValues();
+    let stepTwoData: TrainerStepTwoData | ClientStepTwoData;
+    
+    if (userType === "trainer") {
+      stepTwoData = trainerStepTwoForm.getValues();
+    } else {
+      stepTwoData = clientStepTwoForm.getValues();
+    }
     
     const stepThreeData = stepThreeForm.getValues();
     
@@ -162,17 +169,23 @@ const SignUp = () => {
     try {
       const { name, email, password } = userData;
       
-      const additionalData = userType === "trainer" 
-        ? {
-            specialization: (stepTwoData as typeof trainerStepTwoForm["_formValues"]).specialization,
-            experience: (stepTwoData as typeof trainerStepTwoForm["_formValues"]).experience,
-            bio: (stepTwoData as typeof trainerStepTwoForm["_formValues"]).bio,
-          } 
-        : {
-            goals: (stepTwoData as typeof clientStepTwoForm["_formValues"]).goals,
-            experienceLevel: (stepTwoData as typeof clientStepTwoForm["_formValues"]).experienceLevel,
-            activityLevel: (stepTwoData as typeof clientStepTwoForm["_formValues"]).activityLevel,
-          };
+      let additionalData: any;
+      
+      if (userType === "trainer") {
+        const trainerData = stepTwoData as TrainerStepTwoData;
+        additionalData = {
+          specialization: trainerData.specialization,
+          experience: trainerData.experience,
+          bio: trainerData.bio,
+        };
+      } else {
+        const clientData = stepTwoData as ClientStepTwoData;
+        additionalData = {
+          goals: clientData.goals,
+          experienceLevel: clientData.experienceLevel,
+          activityLevel: clientData.activityLevel,
+        };
+      }
       
       const { data, error } = await signUp(email, password, {
         name,
