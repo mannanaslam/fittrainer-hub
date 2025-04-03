@@ -1,3 +1,4 @@
+
 // Use the official Supabase client from the integrations folder
 import { supabase as officialClient } from '@/integrations/supabase/client';
 import { Profile, Workout, MealPlan, Subscription } from '@/types/supabase';
@@ -264,7 +265,7 @@ export async function createSubscription(subscription: Omit<Subscription, 'id' |
 }
 
 // Helper function to create or update a user profile
-export async function upsertUserProfile(profileData: Partial<Profile>): Promise<Profile | null> {
+export async function upsertUserProfile(profileData: Pick<Profile, 'id'> & Partial<Omit<Profile, 'id'>>): Promise<Profile | null> {
   try {
     if (!profileData.id) {
       console.error('Profile ID is required for upsert');
@@ -273,9 +274,16 @@ export async function upsertUserProfile(profileData: Partial<Profile>): Promise<
     
     console.log("Upserting profile:", profileData);
     
+    // Ensure we have all required fields for the profile
     const { data, error } = await supabase
       .from('profiles')
-      .upsert(profileData)
+      .upsert({
+        id: profileData.id,
+        email: profileData.email || '', // Provide a default empty string if email is not provided
+        name: profileData.name || '',
+        role: profileData.role || 'client', // Provide a default role if not provided
+        ...profileData, // Include all other profile data
+      })
       .select()
       .maybeSingle();
     

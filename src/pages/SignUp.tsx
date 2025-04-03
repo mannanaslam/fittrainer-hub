@@ -141,12 +141,18 @@ const SignUp = () => {
     const valid = await stepThreeForm.trigger();
     if (!valid) return;
 
+    const stepOneData = stepOneForm.getValues();
+    const { userType } = stepOneData;
+    
+    const stepTwoData = userType === "trainer" 
+      ? trainerStepTwoForm.getValues() 
+      : clientStepTwoForm.getValues();
+    
+    const stepThreeData = stepThreeForm.getValues();
+    
     const userData = {
-      ...stepOneForm.getValues(),
-      ...(userType === "trainer" 
-        ? trainerStepTwoForm.getValues() 
-        : clientStepTwoForm.getValues()),
-      plan: stepThreeForm.getValues().plan
+      ...stepOneData,
+      plan: stepThreeData.plan
     };
     
     console.log("User data to be saved:", userData);
@@ -154,20 +160,24 @@ const SignUp = () => {
     setIsSubmitting(true);
     
     try {
-      const { name, email, password, userType } = userData;
+      const { name, email, password } = userData;
+      
+      const additionalData = userType === "trainer" 
+        ? {
+            specialization: (stepTwoData as typeof trainerStepTwoForm["_formValues"]).specialization,
+            experience: (stepTwoData as typeof trainerStepTwoForm["_formValues"]).experience,
+            bio: (stepTwoData as typeof trainerStepTwoForm["_formValues"]).bio,
+          } 
+        : {
+            goals: (stepTwoData as typeof clientStepTwoForm["_formValues"]).goals,
+            experienceLevel: (stepTwoData as typeof clientStepTwoForm["_formValues"]).experienceLevel,
+            activityLevel: (stepTwoData as typeof clientStepTwoForm["_formValues"]).activityLevel,
+          };
       
       const { data, error } = await signUp(email, password, {
         name,
         userType,
-        ...(userType === "trainer" ? {
-          specialization: userData.specialization,
-          experience: userData.experience,
-          bio: userData.bio,
-        } : {
-          goals: userData.goals,
-          experienceLevel: userData.experienceLevel,
-          activityLevel: userData.activityLevel,
-        }),
+        ...additionalData,
         plan: userData.plan
       });
       

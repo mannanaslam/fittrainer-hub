@@ -105,25 +105,34 @@ export const useSupabaseAuth = () => {
       // This is a safety measure
       if (data.user) {
         console.log("Creating profile record for user:", data.user.id);
-        // Create profile record
+        
+        // Create a properly structured profile object with all required fields
+        const profileData = {
+          id: data.user.id,
+          email: data.user.email || email,
+          name: userData.name || '',
+          role: userData.userType || 'client',
+          subscription_plan: userData.plan || 'free'
+        };
+        
+        // Add user type specific fields
+        if (userData.userType === 'trainer') {
+          Object.assign(profileData, {
+            specialization: userData.specialization || '',
+            experience: userData.experience || 0,
+            bio: userData.bio || '',
+          });
+        } else {
+          Object.assign(profileData, {
+            goals: userData.goals || [],
+            experience_level: userData.experienceLevel || '',
+            activity_level: userData.activityLevel || 0,
+          });
+        }
+        
         const { error: profileError } = await supabase
           .from('profiles')
-          .upsert({
-            id: data.user.id,
-            email: data.user.email,
-            name: userData.name,
-            role: userData.userType,
-            ...(userData.userType === 'trainer' ? {
-              specialization: userData.specialization,
-              experience: userData.experience,
-              bio: userData.bio,
-            } : {
-              goals: userData.goals,
-              experience_level: userData.experienceLevel,
-              activity_level: userData.activityLevel,
-            }),
-            subscription_plan: userData.plan
-          });
+          .upsert(profileData);
         
         if (profileError) {
           console.error("Error creating profile:", profileError);
