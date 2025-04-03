@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Dumbbell, Mail, Lock, Eye, EyeOff, WifiOff } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -31,8 +32,18 @@ const Login = () => {
   const [connectionError, setConnectionError] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const location = useLocation();
+  const { signIn, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // If user is already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (user && !loading) {
+      const from = location.state?.from?.pathname || "/dashboard";
+      console.log("User already authenticated, redirecting to:", from);
+      navigate(from, { replace: true });
+    }
+  }, [user, loading, navigate, location]);
   
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -58,12 +69,16 @@ const Login = () => {
           description: error.message,
           variant: "destructive"
         });
-      } else if (data.session) {
+      } else if (data?.session) {
+        const from = location.state?.from?.pathname || "/dashboard";
+        console.log("Login successful, redirecting to:", from);
+        
         toast({
           title: "Login successful",
           description: "You have been successfully logged in.",
         });
-        navigate("/dashboard");
+        
+        navigate(from, { replace: true });
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -79,46 +94,19 @@ const Login = () => {
     }
   };
   
-  const tryDemoAccount = async (type: 'trainer' | 'client') => {
-    try {
-      setIsLoading(true);
-      
-      const email = type === 'trainer' ? 'trainer@example.com' : 'client@example.com';
-      const password = 'password123';
-      
-      console.log(`Trying demo account: ${email}`);
-      form.setValue('email', email);
-      form.setValue('password', password);
-      
-      const { data, error } = await signIn(email, password);
-      
-      if (error) {
-        console.error("Demo login error:", error);
-        toast({
-          title: "Login failed",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else if (data.session) {
-        toast({
-          title: "Login successful",
-          description: `Logged in as ${type}.`,
-        });
-        navigate("/dashboard");
-      }
-    } catch (error) {
-      console.error("Demo login failed:", error);
-      setConnectionError(true);
-      
-      toast({
-        title: "Login failed",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Don't render the login form if the user is already authenticated
+  // This prevents flashing of the login form before redirect
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
+  }
+  
+  if (user) {
+    return null; // Will be redirected by the useEffect
+  }
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -222,34 +210,6 @@ const Login = () => {
                   Sign up
                 </Link>
               </p>
-            </div>
-            
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium mb-2">Demo Accounts</h3>
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p><strong>Trainer:</strong> trainer@example.com / password123</p>
-                <p><strong>Client:</strong> client@example.com / password123</p>
-              </div>
-              <div className="mt-2 flex flex-col space-y-2">
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => tryDemoAccount('trainer')}
-                  className="text-xs"
-                  disabled={isLoading}
-                >
-                  Try Trainer Demo
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => tryDemoAccount('client')}
-                  className="text-xs"
-                  disabled={isLoading}
-                >
-                  Try Client Demo
-                </Button>
-              </div>
             </div>
           </div>
         </Container>

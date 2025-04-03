@@ -44,11 +44,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     
     if (!user) {
+      console.log("User not authenticated, redirecting to login");
       // If not authenticated, redirect to login page
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
     
     // If authenticated, render the children
+    console.log("User authenticated, rendering content");
     return <>{children}</>;
   };
 

@@ -79,6 +79,8 @@ export const useSupabaseAuth = () => {
   const signUp = async (email: string, password: string, userData: any) => {
     try {
       setLoading(true);
+      console.log("Signing up user:", email, userData);
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -88,19 +90,51 @@ export const useSupabaseAuth = () => {
       });
       
       if (error) {
+        console.error("Sign up error:", error);
         toast({
           title: "Signup failed",
           description: error.message,
           variant: "destructive"
         });
-      } else {
-        toast({
-          title: "Signup successful",
-          description: "Please check your email to confirm your account."
-        });
+        return { data, error };
+      } 
+      
+      console.log("Sign up successful:", data);
+      
+      // Instead of relying on the trigger, let's create the profile manually as well
+      // This is belt and suspenders approach in case the DB trigger fails
+      if (data.user) {
+        // Create profile record
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            email: data.user.email,
+            name: userData.name,
+            role: userData.userType,
+            ...(userData.userType === 'trainer' ? {
+              specialization: userData.specialization,
+              experience: userData.experience,
+              bio: userData.bio,
+            } : {
+              goals: userData.goals,
+              experience_level: userData.experienceLevel,
+              activity_level: userData.activityLevel,
+            }),
+            subscription_plan: userData.plan
+          });
+        
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
+        }
       }
       
-      return { data, error };
+      toast({
+        title: "Signup successful",
+        description: "Please check your email to confirm your account."
+      });
+      
+      return { data, error: null };
     } catch (error) {
       console.error("Error in signUp:", error);
       
@@ -134,15 +168,23 @@ export const useSupabaseAuth = () => {
           description: error.message,
           variant: "destructive"
         });
-      } else {
-        console.log("Sign in successful:", data.user?.id);
-        toast({
-          title: "Login successful",
-          description: "You have been successfully logged in."
-        });
+        return { data: null, error };
+      } 
+      
+      console.log("Sign in successful:", data?.user?.id);
+      
+      // Fetch profile after successful sign in
+      if (data?.user) {
+        const userProfile = await fetchProfile(data.user.id);
+        setProfile(userProfile);
       }
       
-      return { data, error };
+      toast({
+        title: "Login successful",
+        description: "You have been successfully logged in."
+      });
+      
+      return { data, error: null };
     } catch (error) {
       console.error("Error in signIn:", error);
       
