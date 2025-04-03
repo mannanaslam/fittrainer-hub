@@ -10,10 +10,14 @@ import { WorkoutTab } from "./tabs/WorkoutTab";
 import { ScheduleTab } from "./tabs/ScheduleTab";
 import { AnalyticsTab } from "./tabs/AnalyticsTab";
 import { ComingSoonTab } from "./tabs/ComingSoonTab";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Dashboard() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
+  const { profile } = useAuth();
+  
+  const isTrainer = profile?.role === 'trainer';
 
   // Parse tab from URL query parameters
   useEffect(() => {
@@ -24,16 +28,113 @@ export function Dashboard() {
     }
   }, [location.search]);
 
+  // Common tabs for both trainer and client
+  if (activeTab === "overview") {
+    return (
+      <DashboardLayout>
+        <OverviewTab />
+      </DashboardLayout>
+    );
+  }
+  
+  if (activeTab === "workouts") {
+    return (
+      <DashboardLayout>
+        <WorkoutTab />
+      </DashboardLayout>
+    );
+  }
+  
+  if (activeTab === "meals") {
+    return (
+      <DashboardLayout>
+        <MealsTab />
+      </DashboardLayout>
+    );
+  }
+  
+  if (activeTab === "schedule") {
+    return (
+      <DashboardLayout>
+        <ScheduleTab />
+      </DashboardLayout>
+    );
+  }
+  
+  if (activeTab === "messages") {
+    return (
+      <DashboardLayout>
+        <ComingSoonTab tabName="messages" />
+      </DashboardLayout>
+    );
+  }
+  
+  if (activeTab === "settings") {
+    return (
+      <DashboardLayout>
+        <ComingSoonTab tabName="settings" />
+      </DashboardLayout>
+    );
+  }
+  
+  // Trainer-specific tabs
+  if (isTrainer) {
+    if (activeTab === "clients") {
+      return (
+        <DashboardLayout>
+          <ClientsTab />
+        </DashboardLayout>
+      );
+    }
+    
+    if (activeTab === "subscriptions") {
+      return (
+        <DashboardLayout>
+          <SubscriptionsTab />
+        </DashboardLayout>
+      );
+    }
+    
+    if (activeTab === "analytics") {
+      return (
+        <DashboardLayout>
+          <AnalyticsTab />
+        </DashboardLayout>
+      );
+    }
+  }
+  
+  // Client-specific tabs
+  if (!isTrainer) {
+    if (activeTab === "progress") {
+      return (
+        <DashboardLayout>
+          <ComingSoonTab tabName="progress tracking" />
+        </DashboardLayout>
+      );
+    }
+    
+    if (activeTab === "health") {
+      return (
+        <DashboardLayout>
+          <ComingSoonTab tabName="health metrics" />
+        </DashboardLayout>
+      );
+    }
+    
+    if (activeTab === "profile") {
+      return (
+        <DashboardLayout>
+          <ComingSoonTab tabName="client profile" />
+        </DashboardLayout>
+      );
+    }
+  }
+
+  // Default/fallback view
   return (
     <DashboardLayout>
-      {activeTab === "overview" && <OverviewTab />}
-      {activeTab === "clients" && <ClientsTab />}
-      {activeTab === "subscriptions" && <SubscriptionsTab />}
-      {activeTab === "meals" && <MealsTab />}
-      {activeTab === "schedule" && <ScheduleTab />}
-      {activeTab === "workouts" && <WorkoutTab />}
-      {activeTab === "analytics" && <AnalyticsTab />}
-      {activeTab === "settings" && <ComingSoonTab tabName="settings" />}
+      <OverviewTab />
     </DashboardLayout>
   );
 }

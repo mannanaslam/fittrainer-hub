@@ -20,13 +20,16 @@ import {
   Settings,
   LogOut,
   BarChart,
-  MessageSquare
+  MessageSquare,
+  UserCircle,
+  HeartPulse,
+  Trophy
 } from "lucide-react";
 
 export function DashboardSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, profile } = useAuth();
   
   // Get the current tab from the URL query parameters
   const searchParams = new URLSearchParams(location.search);
@@ -37,8 +40,11 @@ export function DashboardSidebar() {
     return `/dashboard?tab=${tab}`;
   };
   
-  // Navigation items
-  const navItems = [
+  // Check if user is a trainer or client
+  const isTrainer = profile?.role === 'trainer';
+  
+  // Navigation items based on user role
+  const trainerNavItems = [
     {
       title: "Overview",
       icon: LayoutDashboard,
@@ -94,6 +100,66 @@ export function DashboardSidebar() {
       active: currentTab === "settings"
     }
   ];
+  
+  const clientNavItems = [
+    {
+      title: "Overview",
+      icon: LayoutDashboard,
+      href: createTabUrl("overview"),
+      active: currentTab === "overview"
+    },
+    {
+      title: "My Workouts",
+      icon: Dumbbell,
+      href: createTabUrl("workouts"),
+      active: currentTab === "workouts"
+    },
+    {
+      title: "My Meal Plan",
+      icon: Utensils,
+      href: createTabUrl("meals"),
+      active: currentTab === "meals"
+    },
+    {
+      title: "Progress",
+      icon: Trophy,
+      href: createTabUrl("progress"),
+      active: currentTab === "progress"
+    },
+    {
+      title: "Health Metrics",
+      icon: HeartPulse,
+      href: createTabUrl("health"),
+      active: currentTab === "health"
+    },
+    {
+      title: "Schedule",
+      icon: Calendar,
+      href: createTabUrl("schedule"),
+      active: currentTab === "schedule"
+    },
+    {
+      title: "Messages",
+      icon: MessageSquare,
+      href: createTabUrl("messages"),
+      active: currentTab === "messages"
+    },
+    {
+      title: "My Profile",
+      icon: UserCircle,
+      href: createTabUrl("profile"),
+      active: currentTab === "profile"
+    },
+    {
+      title: "Settings",
+      icon: Settings,
+      href: createTabUrl("settings"),
+      active: currentTab === "settings"
+    }
+  ];
+  
+  // Select navigation items based on user role
+  const navItems = isTrainer ? trainerNavItems : clientNavItems;
 
   return (
     <Sidebar>
