@@ -1,6 +1,7 @@
 
 import { createContext, useState, useEffect, ReactNode } from "react";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { Navigate, useLocation } from "react-router-dom";
 
 type AuthContextType = {
   user: any;
@@ -9,6 +10,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<any>;
   signUp: (email: string, password: string, userData: any) => Promise<any>;
   signOut: () => Promise<void>;
+  requireAuth: (children: ReactNode) => JSX.Element;
 };
 
 // Create context with default values
@@ -19,6 +21,7 @@ export const AuthContext = createContext<AuthContextType>({
   signIn: async () => ({ data: null, error: null }),
   signUp: async () => ({ data: null, error: null }),
   signOut: async () => {},
+  requireAuth: () => <></>,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -31,6 +34,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signOut,
   } = useSupabaseAuth();
 
+  // Function to require authentication for protected routes
+  const requireAuth = (children: ReactNode) => {
+    const location = useLocation();
+    
+    if (loading) {
+      // Show loading state while checking auth
+      return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    }
+    
+    if (!user) {
+      // If not authenticated, redirect to login page
+      return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+    
+    // If authenticated, render the children
+    return <>{children}</>;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -40,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signIn,
         signUp,
         signOut,
+        requireAuth,
       }}
     >
       {children}

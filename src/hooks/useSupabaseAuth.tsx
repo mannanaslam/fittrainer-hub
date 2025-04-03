@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import type { User, AuthError } from '@supabase/supabase-js';
+import type { User, AuthError, Session } from '@supabase/supabase-js';
 import { Profile } from '@/types/supabase';
 import { useToast } from '@/hooks/use-toast';
 
 export const useSupabaseAuth = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -14,6 +15,7 @@ export const useSupabaseAuth = () => {
   // Fetch user profile data
   const fetchProfile = async (userId: string) => {
     try {
+      console.log("Fetching profile for user:", userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -25,6 +27,7 @@ export const useSupabaseAuth = () => {
         return null;
       }
 
+      console.log("Profile data:", data);
       return data as Profile;
     } catch (error) {
       console.error("Profile fetch error:", error);
@@ -34,13 +37,17 @@ export const useSupabaseAuth = () => {
 
   // Auth state listener
   useEffect(() => {
+    setLoading(true);
+    
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
+      async (event, newSession) => {
+        console.log("Auth state changed:", event, newSession?.user?.id);
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
         
-        if (session?.user) {
-          const userProfile = await fetchProfile(session.user.id);
+        if (newSession?.user) {
+          const userProfile = await fetchProfile(newSession.user.id);
           setProfile(userProfile);
         } else {
           setProfile(null);
@@ -51,11 +58,13 @@ export const useSupabaseAuth = () => {
     );
     
     // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
+      console.log("Initial session check:", initialSession?.user?.id);
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
       
-      if (session?.user) {
-        const userProfile = await fetchProfile(session.user.id);
+      if (initialSession?.user) {
+        const userProfile = await fetchProfile(initialSession.user.id);
         setProfile(userProfile);
       }
       
@@ -69,6 +78,7 @@ export const useSupabaseAuth = () => {
 
   const signUp = async (email: string, password: string, userData: any) => {
     try {
+      setLoading(true);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -102,23 +112,30 @@ export const useSupabaseAuth = () => {
       });
       
       return { data: null, error: authError };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
+      setLoading(true);
+      console.log("Signing in with:", email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
       if (error) {
+        console.error("Sign in error:", error);
         toast({
           title: "Login failed",
           description: error.message,
           variant: "destructive"
         });
       } else {
+        console.log("Sign in successful:", data.user?.id);
         toast({
           title: "Login successful",
           description: "You have been successfully logged in."
@@ -137,11 +154,14 @@ export const useSupabaseAuth = () => {
       });
       
       return { data: null, error: authError };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
+      setLoading(true);
       await supabase.auth.signOut();
       
       toast({
@@ -156,6 +176,8 @@ export const useSupabaseAuth = () => {
         description: "An error occurred while logging out.",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
