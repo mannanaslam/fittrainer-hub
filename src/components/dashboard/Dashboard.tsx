@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Navigate } from "react-router-dom";
 import { DashboardLayout } from "./DashboardLayout";
 import { OverviewTab } from "./tabs/OverviewTab";
 import { ClientsTab } from "./tabs/ClientsTab";
@@ -15,12 +14,24 @@ import { useAuth } from "@/hooks/useAuth";
 export function Dashboard() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
-  const { profile, user } = useAuth();
+  const { profile, user, loading } = useAuth();
   
-  // Default to client role if profile is null
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  
   const isTrainer = profile?.role === 'trainer';
 
-  // Parse tab from URL query parameters
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const tab = searchParams.get("tab");
@@ -29,7 +40,6 @@ export function Dashboard() {
     }
   }, [location.search]);
 
-  // Common tabs for both trainer and client
   if (activeTab === "overview") {
     return (
       <DashboardLayout>
@@ -78,7 +88,6 @@ export function Dashboard() {
     );
   }
   
-  // Trainer-specific tabs
   if (isTrainer) {
     if (activeTab === "clients") {
       return (
@@ -105,7 +114,6 @@ export function Dashboard() {
     }
   }
   
-  // Client-specific tabs
   if (!isTrainer) {
     if (activeTab === "progress") {
       return (
@@ -132,7 +140,6 @@ export function Dashboard() {
     }
   }
 
-  // Default/fallback view
   return (
     <DashboardLayout>
       <OverviewTab />
