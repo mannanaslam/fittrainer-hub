@@ -12,7 +12,7 @@ export function OverviewTab() {
   if (user && !profile) {
     return (
       <div className="p-4">
-        <Alert variant="warning" className="mb-6">
+        <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4 mr-2" />
           <AlertTitle>Profile Missing</AlertTitle>
           <AlertDescription>
