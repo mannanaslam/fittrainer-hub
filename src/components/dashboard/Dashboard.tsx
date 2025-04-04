@@ -15,8 +15,9 @@ import { useAuth } from "@/hooks/useAuth";
 export function Dashboard() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   
+  // Default to client role if profile is null
   const isTrainer = profile?.role === 'trainer';
 
   // Parse tab from URL query parameters

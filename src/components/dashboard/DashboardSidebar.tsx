@@ -29,7 +29,7 @@ import {
 export function DashboardSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, user } = useAuth();
   
   // Get the current tab from the URL query parameters
   const searchParams = new URLSearchParams(location.search);
@@ -40,7 +40,7 @@ export function DashboardSidebar() {
     return `/dashboard?tab=${tab}`;
   };
   
-  // Check if user is a trainer or client
+  // Default to client if profile is missing
   const isTrainer = profile?.role === 'trainer';
   
   // Navigation items based on user role
