@@ -37,17 +37,19 @@ export function Hero() {
                 </Button>
               </Link>
             ) : (
-              <Link to="/signup">
-                <Button size="lg" className="w-full sm:w-auto">
-                  Get Started
-                </Button>
-              </Link>
+              <>
+                <Link to="/signup">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    Get Started
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                    Log In
+                  </Button>
+                </Link>
+              </>
             )}
-            <Link to="/#features">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Explore Features
-              </Button>
-            </Link>
           </div>
         </div>
         
