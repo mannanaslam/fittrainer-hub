@@ -1,5 +1,5 @@
 
-import { createContext, ReactNode, useState, useEffect } from "react";
+import { createContext, ReactNode } from "react";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Navigate, useLocation } from "react-router-dom";
 
@@ -33,6 +33,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signUp,
     signOut,
   } = useSupabaseAuth();
+  
+  console.log("AuthProvider loading:", loading, "user:", user ? "exists" : "null");
   
   // Function to require authentication for protected routes
   const requireAuth = (children: ReactNode) => {

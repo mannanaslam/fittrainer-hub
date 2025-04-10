@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 export function Hero() {
   const { user, loading } = useAuth();
   
+  console.log("Hero component - loading:", loading, "user:", user ? "exists" : "null");
+  
   return (
     <div className="relative pt-28 pb-20 md:py-32 overflow-hidden">
       {/* Background elements */}

@@ -13,6 +13,8 @@ export function Header() {
   const location = useLocation();
   const { user, loading } = useAuth();
   
+  console.log("Header component - loading:", loading, "user:", user ? "exists" : "null");
+  
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
