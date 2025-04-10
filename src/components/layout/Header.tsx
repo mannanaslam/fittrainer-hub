@@ -11,7 +11,7 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -65,7 +65,9 @@ export function Header() {
           </nav>
           
           <div className="hidden md:flex items-center space-x-4">
-            {user ? (
+            {loading ? (
+              <div className="animate-pulse bg-secondary h-10 w-20 rounded"></div>
+            ) : user ? (
               <Link to="/dashboard">
                 <Button className="animate-hover">
                   Dashboard
@@ -126,7 +128,9 @@ export function Header() {
                 ))}
                 <div className="border-t border-border my-2" />
                 <div className="flex flex-col space-y-2 px-4 pt-2">
-                  {user ? (
+                  {loading ? (
+                    <div className="animate-pulse bg-secondary h-10 rounded"></div>
+                  ) : user ? (
                     <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                       <Button className="w-full">
                         Dashboard

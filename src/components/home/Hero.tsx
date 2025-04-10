@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { useAuth } from "@/hooks/useAuth";
 
 export function Hero() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   
   return (
     <div className="relative pt-28 pb-20 md:py-32 overflow-hidden">
@@ -30,7 +30,12 @@ export function Hero() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:600ms]">
-            {user ? (
+            {loading ? (
+              <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4">
+                <div className="animate-pulse bg-secondary h-11 w-32 rounded-md"></div>
+                <div className="animate-pulse bg-secondary h-11 w-32 rounded-md mt-4 sm:mt-0"></div>
+              </div>
+            ) : user ? (
               <Link to="/dashboard">
                 <Button size="lg" className="w-full sm:w-auto">
                   Go to Dashboard
