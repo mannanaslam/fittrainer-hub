@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Dumbbell, Mail, Lock, Eye, EyeOff, WifiOff } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -18,7 +18,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -43,7 +42,7 @@ const Login = () => {
       console.log("User already authenticated, redirecting to:", from);
       navigate(from, { replace: true });
     }
-  }, [user, loading, navigate, location]);
+  }, [user, loading, navigate, location.state]);
   
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -99,7 +98,7 @@ const Login = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse">Loading...</div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }

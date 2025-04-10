@@ -1,5 +1,5 @@
 
-import { createContext, useState, useEffect, ReactNode } from "react";
+import { createContext, ReactNode } from "react";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Navigate, useLocation } from "react-router-dom";
 
@@ -40,31 +40,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     if (loading) {
       // Show loading state while checking auth
-      return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      );
     }
     
     if (!user) {
       console.log("User not authenticated, redirecting to login");
-      // If not authenticated, redirect to login page
+      // If not authenticated, redirect to login page with location state
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
     
     // Check if profile exists for the authenticated user
     if (!profile && !loading) {
       console.log("User authenticated but no profile found, might need to recreate profile");
-      // You could add logic here to recreate a profile if needed
+      // In a real app, you might want to handle this case better
     }
     
     // If authenticated, render the children
     console.log("User authenticated, rendering content");
     return <>{children}</>;
   };
-
-  // Log state changes for debugging
-  useEffect(() => {
-    console.log("Auth context state updated:", { user, profile, loading });
-  }, [user, profile, loading]);
-
+  
   return (
     <AuthContext.Provider
       value={{

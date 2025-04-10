@@ -3,11 +3,9 @@ import { Dashboard as DashboardComponent } from "@/components/dashboard/Dashboar
 import { useAuth } from "@/hooks/useAuth";
 
 const Dashboard = () => {
-  const { loading } = useAuth();
+  const { requireAuth } = useAuth();
   
-  return (
-    <DashboardComponent />
-  );
+  return requireAuth(<DashboardComponent />);
 };
 
 export default Dashboard;

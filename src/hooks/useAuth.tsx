@@ -1,7 +1,7 @@
 
 import { useContext } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -13,6 +13,7 @@ export const useAuth = () => {
   // Helper function to require authentication
   const requireAuth = (children: React.ReactNode) => {
     const { user, loading } = context;
+    const location = useLocation();
     
     if (loading) {
       // Return a loading state while checking authentication
@@ -24,7 +25,8 @@ export const useAuth = () => {
     }
     
     if (!user) {
-      return <Navigate to="/login" />;
+      // Save the current location for redirect after login
+      return <Navigate to="/login" state={{ from: location }} />;
     }
     
     return children;
