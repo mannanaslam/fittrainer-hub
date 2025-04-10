@@ -14,7 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 export function Dashboard() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
-  const { profile, user, loading } = useAuth();
+  const { profile, loading } = useAuth();
   
   if (loading) {
     return (
@@ -24,10 +24,6 @@ export function Dashboard() {
         </div>
       </DashboardLayout>
     );
-  }
-  
-  if (!user) {
-    return <Navigate to="/login" />;
   }
   
   const isTrainer = profile?.role === 'trainer';
@@ -40,6 +36,7 @@ export function Dashboard() {
     }
   }, [location.search]);
 
+  // Render the appropriate tab based on the activeTab state
   if (activeTab === "overview") {
     return (
       <DashboardLayout>
@@ -140,6 +137,7 @@ export function Dashboard() {
     }
   }
 
+  // Default fallback
   return (
     <DashboardLayout>
       <OverviewTab />
