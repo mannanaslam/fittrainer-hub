@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
@@ -54,7 +53,7 @@ interface WorkoutForm {
 
 const CreateWorkout = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [workoutType, setWorkoutType] = useState("strength");
   const [workoutName, setWorkoutName] = useState("");
@@ -140,7 +139,6 @@ const CreateWorkout = () => {
       return false;
     }
 
-    // Validate exercises
     for (const exercise of exercises) {
       if (!exercise.name.trim()) {
         toast({ title: "Error", description: "All exercises must have a name", variant: "destructive" });
@@ -168,10 +166,32 @@ const CreateWorkout = () => {
 
     try {
       setIsSubmitting(true);
+      
+      const { data: clients, error: clientError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('role', 'client')
+        .limit(1);
+        
+      if (clientError) {
+        console.error('Error fetching clients:', clientError);
+        throw new Error('Unable to fetch clients');
+      }
+      
+      if (!clients || clients.length === 0) {
+        toast({ 
+          title: "Error", 
+          description: "No clients found in the system. Please add a client first.", 
+          variant: "destructive" 
+        });
+        return;
+      }
+      
+      const clientId = clients[0].id;
 
-      // Prepare workout data
       const workoutData = {
         trainer_id: user.id,
+        client_id: clientId,
         title: workoutName,
         description: workoutDescription,
         exercises: {
@@ -191,7 +211,6 @@ const CreateWorkout = () => {
         }
       };
 
-      // Insert workout into database
       const { data, error } = await supabase
         .from('workouts')
         .insert(workoutData)
@@ -199,6 +218,7 @@ const CreateWorkout = () => {
         .single();
 
       if (error) {
+        console.error('Supabase error details:', error);
         throw error;
       }
 
@@ -207,7 +227,6 @@ const CreateWorkout = () => {
         description: status === 'published' ? "Your workout has been published successfully" : "Your workout has been saved as draft"
       });
 
-      // Navigate to the workout plan or dashboard
       if (status === 'published' && data?.id) {
         navigate(`/workout-plan/${data.id}`);
       } else {
@@ -371,7 +390,7 @@ const CreateWorkout = () => {
                       htmlFor="hiit" 
                       className="flex flex-col items-center justify-between border rounded-xl p-4 cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 hover:bg-secondary h-full"
                     >
-                      <Activity className="h-8 w-8 mb-2" />
+                      <Zap className="h-8 w-8 mb-2" />
                       <span className="font-medium">HIIT</span>
                     </Label>
                   </div>
@@ -531,7 +550,7 @@ const CreateWorkout = () => {
                 onClick={() => saveWorkout('draft')}
                 disabled={isSubmitting}
               >
-                Save as Draft
+                {isSubmitting ? 'Saving...' : 'Save as Draft'}
               </Button>
               <Button 
                 onClick={() => saveWorkout('published')}
@@ -550,4 +569,3 @@ const CreateWorkout = () => {
 };
 
 export default CreateWorkout;
-
