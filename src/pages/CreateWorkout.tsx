@@ -167,31 +167,13 @@ const CreateWorkout = () => {
     try {
       setIsSubmitting(true);
       
-      const { data: clients, error: clientError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('role', 'client')
-        .limit(1);
-        
-      if (clientError) {
-        console.error('Error fetching clients:', clientError);
-        throw new Error('Unable to fetch clients');
-      }
+      const clientId = user.id;  // Use the current user's ID as client_id temporarily
       
-      if (!clients || clients.length === 0) {
-        toast({ 
-          title: "Error", 
-          description: "No clients found in the system. Please add a client first.", 
-          variant: "destructive" 
-        });
-        return;
-      }
-      
-      const clientId = clients[0].id;
+      console.log("Creating workout with trainer_id:", user.id, "and client_id:", clientId);
 
       const workoutData = {
         trainer_id: user.id,
-        client_id: clientId,
+        client_id: clientId, // Use the current user ID as client
         title: workoutName,
         description: workoutDescription,
         exercises: {
