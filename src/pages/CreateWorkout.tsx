@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
   Plus, 
@@ -27,6 +28,9 @@ import {
 } from "@/components/ui/tooltip";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface Exercise {
   id: string;
@@ -38,8 +42,26 @@ interface Exercise {
   videoUrl?: string;
 }
 
+interface WorkoutForm {
+  title: string;
+  description: string;
+  duration: string;
+  difficulty: string;
+  frequency: string;
+  workoutType: string;
+  exercises: Exercise[];
+}
+
 const CreateWorkout = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [workoutType, setWorkoutType] = useState("strength");
+  const [workoutName, setWorkoutName] = useState("");
+  const [workoutDescription, setWorkoutDescription] = useState("");
+  const [workoutDuration, setWorkoutDuration] = useState("");
+  const [workoutDifficulty, setWorkoutDifficulty] = useState("");
+  const [workoutFrequency, setWorkoutFrequency] = useState("");
   const [exercises, setExercises] = useState<Exercise[]>([
     {
       id: "ex1",
@@ -96,6 +118,112 @@ const CreateWorkout = () => {
       )
     );
   };
+
+  const validateForm = (): boolean => {
+    if (!workoutName.trim()) {
+      toast({ title: "Error", description: "Workout name is required", variant: "destructive" });
+      return false;
+    }
+
+    if (!workoutDescription.trim()) {
+      toast({ title: "Error", description: "Workout description is required", variant: "destructive" });
+      return false;
+    }
+
+    if (!workoutDuration.trim()) {
+      toast({ title: "Error", description: "Workout duration is required", variant: "destructive" });
+      return false;
+    }
+
+    if (!workoutDifficulty) {
+      toast({ title: "Error", description: "Difficulty level is required", variant: "destructive" });
+      return false;
+    }
+
+    // Validate exercises
+    for (const exercise of exercises) {
+      if (!exercise.name.trim()) {
+        toast({ title: "Error", description: "All exercises must have a name", variant: "destructive" });
+        return false;
+      }
+      if (!exercise.sets.trim()) {
+        toast({ title: "Error", description: `Sets are required for exercise: ${exercise.name}`, variant: "destructive" });
+        return false;
+      }
+      if (!exercise.reps.trim()) {
+        toast({ title: "Error", description: `Reps are required for exercise: ${exercise.name}`, variant: "destructive" });
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const saveWorkout = async (status: 'draft' | 'published') => {
+    if (!validateForm()) return;
+    if (!user) {
+      toast({ title: "Error", description: "You must be logged in to save a workout", variant: "destructive" });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // Prepare workout data
+      const workoutData = {
+        trainer_id: user.id,
+        title: workoutName,
+        description: workoutDescription,
+        exercises: {
+          workoutType,
+          duration: workoutDuration,
+          difficulty: workoutDifficulty,
+          frequency: workoutFrequency,
+          status,
+          exercises: exercises.map(ex => ({
+            name: ex.name,
+            description: ex.description,
+            sets: ex.sets,
+            reps: ex.reps,
+            restTime: ex.restTime,
+            videoUrl: ex.videoUrl || ""
+          }))
+        }
+      };
+
+      // Insert workout into database
+      const { data, error } = await supabase
+        .from('workouts')
+        .insert(workoutData)
+        .select('id')
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: status === 'published' ? "Workout Published" : "Draft Saved",
+        description: status === 'published' ? "Your workout has been published successfully" : "Your workout has been saved as draft"
+      });
+
+      // Navigate to the workout plan or dashboard
+      if (status === 'published' && data?.id) {
+        navigate(`/workout-plan/${data.id}`);
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Error saving workout:', error);
+      toast({
+        title: "Error",
+        description: "There was a problem saving your workout. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -124,12 +252,24 @@ const CreateWorkout = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Workout Name</Label>
-                  <Input id="name" placeholder="e.g., Upper Body Power Workout" />
+                  <Input 
+                    id="name" 
+                    placeholder="e.g., Upper Body Power Workout" 
+                    value={workoutName}
+                    onChange={(e) => setWorkoutName(e.target.value)}
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="duration">Estimated Duration (minutes)</Label>
-                  <Input id="duration" type="number" placeholder="e.g., 45" min="1" />
+                  <Input 
+                    id="duration" 
+                    type="number" 
+                    placeholder="e.g., 45" 
+                    min="1"
+                    value={workoutDuration}
+                    onChange={(e) => setWorkoutDuration(e.target.value)}
+                  />
                 </div>
                 
                 <div className="space-y-2">
@@ -137,6 +277,8 @@ const CreateWorkout = () => {
                   <select
                     id="difficulty"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={workoutDifficulty}
+                    onChange={(e) => setWorkoutDifficulty(e.target.value)}
                   >
                     <option value="">Select difficulty level</option>
                     <option value="beginner">Beginner</option>
@@ -147,7 +289,12 @@ const CreateWorkout = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="frequency">Recommended Frequency</Label>
-                  <Input id="frequency" placeholder="e.g., 2-3 times per week" />
+                  <Input 
+                    id="frequency" 
+                    placeholder="e.g., 2-3 times per week"
+                    value={workoutFrequency}
+                    onChange={(e) => setWorkoutFrequency(e.target.value)}
+                  />
                 </div>
                 
                 <div className="md:col-span-2 space-y-2">
@@ -156,6 +303,8 @@ const CreateWorkout = () => {
                     id="description" 
                     className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[100px]"
                     placeholder="Describe the workout, its benefits, and who it's designed for..."
+                    value={workoutDescription}
+                    onChange={(e) => setWorkoutDescription(e.target.value)}
                   />
                 </div>
               </div>
@@ -377,11 +526,18 @@ const CreateWorkout = () => {
             </div>
             
             <div className="flex justify-end space-x-3">
-              <Button variant="outline">
+              <Button 
+                variant="outline" 
+                onClick={() => saveWorkout('draft')}
+                disabled={isSubmitting}
+              >
                 Save as Draft
               </Button>
-              <Button>
-                Publish Workout
+              <Button 
+                onClick={() => saveWorkout('published')}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Publishing...' : 'Publish Workout'}
               </Button>
             </div>
           </div>
@@ -394,3 +550,4 @@ const CreateWorkout = () => {
 };
 
 export default CreateWorkout;
+
