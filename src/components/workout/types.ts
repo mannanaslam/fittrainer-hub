@@ -25,4 +25,3 @@ export const workoutFormSchema = z.object({
 
 export type Exercise = z.infer<typeof exerciseSchema>;
 export type WorkoutFormData = z.infer<typeof workoutFormSchema>;
-
