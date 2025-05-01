@@ -1,9 +1,10 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
-import type { User, AuthError, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import type { User, Session } from '@supabase/supabase-js';
 import { Profile } from '@/types/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { fetchUserProfile, signUpUser, signInUser, signOutUser } from '@/lib/auth-api';
 
 export const useSupabaseAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -11,29 +12,6 @@ export const useSupabaseAuth = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-
-  // Fetch user profile data
-  const fetchProfile = async (userId: string) => {
-    try {
-      console.log("Fetching profile for user:", userId);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Profile fetch error:", error);
-        return null;
-      }
-
-      console.log("Profile data:", data);
-      return data as Profile;
-    } catch (error) {
-      console.error("Profile fetch error:", error);
-      return null;
-    }
-  };
 
   // Auth state listener
   useEffect(() => {
@@ -47,7 +25,7 @@ export const useSupabaseAuth = () => {
         setUser(newSession?.user ?? null);
         
         if (newSession?.user) {
-          const userProfile = await fetchProfile(newSession.user.id);
+          const userProfile = await fetchUserProfile(newSession.user.id);
           setProfile(userProfile);
         } else {
           setProfile(null);
@@ -64,7 +42,7 @@ export const useSupabaseAuth = () => {
       setUser(initialSession?.user ?? null);
       
       if (initialSession?.user) {
-        const userProfile = await fetchProfile(initialSession.user.id);
+        const userProfile = await fetchUserProfile(initialSession.user.id);
         setProfile(userProfile);
       }
       
@@ -79,71 +57,16 @@ export const useSupabaseAuth = () => {
   const signUp = async (email: string, password: string, userData: any) => {
     try {
       setLoading(true);
-      console.log("Signing up user:", email, userData);
       
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: userData
-        }
-      });
+      const { data, error } = await signUpUser(email, password, userData);
       
       if (error) {
-        console.error("Sign up error:", error);
         toast({
           title: "Signup failed",
           description: error.message,
           variant: "destructive"
         });
         return { data, error };
-      } 
-      
-      console.log("Sign up successful:", data);
-      
-      // Create profile record directly if the trigger doesn't kick in
-      // This is a safety measure
-      if (data.user) {
-        console.log("Creating profile record for user:", data.user.id);
-        
-        // Create a properly structured profile object with all required fields
-        const profileData = {
-          id: data.user.id,
-          email: data.user.email || email,
-          name: userData.name || '',
-          role: userData.userType || 'client',
-          subscription_plan: userData.plan || 'free'
-        };
-        
-        // Add user type specific fields
-        if (userData.userType === 'trainer') {
-          Object.assign(profileData, {
-            specialization: userData.specialization || '',
-            experience: userData.experience || 0,
-            bio: userData.bio || '',
-          });
-        } else {
-          Object.assign(profileData, {
-            goals: userData.goals || [],
-            experience_level: userData.experienceLevel || '',
-            activity_level: userData.activityLevel || 0,
-          });
-        }
-        
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert(profileData);
-        
-        if (profileError) {
-          console.error("Error creating profile:", profileError);
-          toast({
-            title: "Profile creation issue",
-            description: "Your account was created but there was an issue with your profile. Please contact support.",
-            variant: "destructive"
-          });
-        } else {
-          console.log("Profile created successfully");
-        }
       }
       
       toast({
@@ -152,17 +75,6 @@ export const useSupabaseAuth = () => {
       });
       
       return { data, error: null };
-    } catch (error) {
-      console.error("Error in signUp:", error);
-      
-      const authError = error as AuthError;
-      toast({
-        title: "Signup failed",
-        description: authError.message || "An unknown error occurred",
-        variant: "destructive"
-      });
-      
-      return { data: null, error: authError };
     } finally {
       setLoading(false);
     }
@@ -171,15 +83,10 @@ export const useSupabaseAuth = () => {
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      console.log("Signing in with:", email);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      const { data, error } = await signInUser(email, password);
       
       if (error) {
-        console.error("Sign in error:", error);
         toast({
           title: "Login failed",
           description: error.message,
@@ -188,11 +95,9 @@ export const useSupabaseAuth = () => {
         return { data: null, error };
       } 
       
-      console.log("Sign in successful:", data?.user?.id);
-      
       // Fetch profile after successful sign in
       if (data?.user) {
-        const userProfile = await fetchProfile(data.user.id);
+        const userProfile = await fetchUserProfile(data.user.id);
         setProfile(userProfile);
       }
       
@@ -202,17 +107,6 @@ export const useSupabaseAuth = () => {
       });
       
       return { data, error: null };
-    } catch (error) {
-      console.error("Error in signIn:", error);
-      
-      const authError = error as AuthError;
-      toast({
-        title: "Login failed",
-        description: authError.message || "An unknown error occurred",
-        variant: "destructive"
-      });
-      
-      return { data: null, error: authError };
     } finally {
       setLoading(false);
     }
@@ -221,20 +115,20 @@ export const useSupabaseAuth = () => {
   const signOut = async () => {
     try {
       setLoading(true);
-      await supabase.auth.signOut();
+      const { error } = await signOutUser();
       
-      toast({
-        title: "Logged out",
-        description: "You have been successfully logged out."
-      });
-    } catch (error) {
-      console.error("Error in signOut:", error);
-      
-      toast({
-        title: "Logout failed",
-        description: "An error occurred while logging out.",
-        variant: "destructive"
-      });
+      if (!error) {
+        toast({
+          title: "Logged out",
+          description: "You have been successfully logged out."
+        });
+      } else {
+        toast({
+          title: "Logout failed",
+          description: "An error occurred while logging out.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }

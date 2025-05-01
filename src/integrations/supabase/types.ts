@@ -9,7 +9,159 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      meal_plans: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string
+          id: string
+          meals: Json
+          title: string
+          trainer_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description: string
+          id?: string
+          meals: Json
+          title: string
+          trainer_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          meals?: Json
+          title?: string
+          trainer_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          activity_level: number | null
+          bio: string | null
+          created_at: string
+          email: string
+          experience: number | null
+          experience_level: string | null
+          goals: string[] | null
+          id: string
+          name: string | null
+          role: string
+          specialization: string | null
+          subscription_plan: string | null
+          updated_at: string
+        }
+        Insert: {
+          activity_level?: number | null
+          bio?: string | null
+          created_at?: string
+          email: string
+          experience?: number | null
+          experience_level?: string | null
+          goals?: string[] | null
+          id: string
+          name?: string | null
+          role?: string
+          specialization?: string | null
+          subscription_plan?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activity_level?: number | null
+          bio?: string | null
+          created_at?: string
+          email?: string
+          experience?: number | null
+          experience_level?: string | null
+          goals?: string[] | null
+          id?: string
+          name?: string | null
+          role?: string
+          specialization?: string | null
+          subscription_plan?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          plan: string
+          start_date: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          plan: string
+          start_date?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          plan?: string
+          start_date?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workouts: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string
+          difficulty: string
+          duration: string
+          exercises: Json
+          frequency: string
+          id: string
+          status: string | null
+          title: string
+          trainer_id: string
+          workout_type: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description: string
+          difficulty: string
+          duration: string
+          exercises: Json
+          frequency: string
+          id?: string
+          status?: string | null
+          title: string
+          trainer_id: string
+          workout_type: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string
+          difficulty?: string
+          duration?: string
+          exercises?: Json
+          frequency?: string
+          id?: string
+          status?: string | null
+          title?: string
+          trainer_id?: string
+          workout_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
