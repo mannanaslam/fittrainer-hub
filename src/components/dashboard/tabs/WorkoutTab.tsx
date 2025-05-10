@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Plus, Filter, Search, Trash2, Clock, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -71,11 +72,11 @@ export function WorkoutTab() {
   });
 
   const handleCreateWorkout = () => {
-    navigate("/workout-plan/create");
+    navigate("/create-workout");
   };
   
   const handleViewWorkout = (id: string) => {
-    navigate(`/workout-plan/${id}`);
+    navigate(`/workout/${id}`);
   };
 
   return (
