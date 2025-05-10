@@ -65,8 +65,12 @@ export function Hero() {
           <div className="relative mx-auto max-w-5xl">
             <div className="glass-card rounded-2xl overflow-hidden shadow-2xl">
               <div className="aspect-[16/9] bg-muted p-2">
-                <div className="w-full h-full bg-secondary rounded-lg flex items-center justify-center">
-                  <p className="text-muted-foreground">Dashboard Preview</p>
+                <div className="w-full h-full rounded-lg flex items-center justify-center overflow-hidden">
+                  <img 
+                    src="/lovable-uploads/1d88a4e7-e4d0-4cae-843d-45fb1159bddd.png" 
+                    alt="Trainer Portfolio Dashboard" 
+                    className="w-full object-cover"
+                  />
                 </div>
               </div>
             </div>
