@@ -1,7 +1,7 @@
 
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { useAuth } from "@/hooks/useAuth"; // Import from hooks
+import { useAuth } from "@/hooks/useAuth";
 import { Toaster } from "sonner";
 import { ReactNode } from "react";
 
@@ -59,8 +59,7 @@ function AppRoutes() {
       <Route path="/workout/:id" element={<ProtectedRoute><WorkoutPlan /></ProtectedRoute>} />
       <Route path="/edit-workout/:id" element={<ProtectedRoute><EditWorkout /></ProtectedRoute>} />
       <Route path="/create-meal-plan" element={<ProtectedRoute><CreateMealPlan /></ProtectedRoute>} />
-      <Route path="/meal-plan/create" element={<ProtectedRoute><CreateMealPlan /></ProtectedRoute>} />
-      <Route path="/create-subscription" element={<ProtectedRoute><CreateSubscription /></ProtectedRoute>} />
+      <Route path="/subscription/create" element={<ProtectedRoute><CreateSubscription /></ProtectedRoute>} />
       <Route path="/exercises" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
       <Route path="/messages" element={<ProtectedRoute><Messaging /></ProtectedRoute>} />
       
