@@ -11,7 +11,7 @@ export async function getMessagesBetweenUsers(
     const { data, error } = await supabase
       .from('messages')
       .select('*')
-      .or(`and(sender_id.eq.${senderId},recipient_id.eq.${recipientId}),and(sender_id.eq.${recipientId},recipient_id.eq.${senderId})`)
+      .or(`sender_id.eq.${senderId},recipient_id.eq.${recipientId}),and(sender_id.eq.${recipientId},recipient_id.eq.${senderId})`)
       .order('created_at', { ascending: false });
     
     if (error) {
@@ -29,74 +29,50 @@ export async function getMessagesBetweenUsers(
 // Get all recent conversations for a user
 export async function getRecentConversations(userId: string): Promise<any[]> {
   try {
-    // Get messages where the user is either sender or recipient
-    const { data: sentMessages, error: sentError } = await supabase
+    // Since we don't have proper database relations set up yet,
+    // we'll implement a simplified version
+    const { data: allMessages, error } = await supabase
       .from('messages')
-      .select('*, profiles!messages_recipient_id_fkey(*)')
-      .eq('sender_id', userId)
+      .select('*')
+      .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
       .order('created_at', { ascending: false });
     
-    const { data: receivedMessages, error: receivedError } = await supabase
-      .from('messages')
-      .select('*, profiles!messages_sender_id_fkey(*)')
-      .eq('recipient_id', userId)
-      .order('created_at', { ascending: false });
-    
-    if (sentError || receivedError) {
-      console.error('Error fetching conversations:', sentError || receivedError);
+    if (error) {
+      console.error('Error fetching conversations:', error);
       return [];
     }
 
-    // Combine and organize by conversation
+    // Process messages into conversations
     const conversationsMap = new Map();
     
-    // Process sent messages
-    sentMessages?.forEach((message) => {
-      const recipientId = message.recipient_id;
-      const recipientProfile = message.profiles;
+    allMessages?.forEach((message: any) => {
+      // Determine the other party in the conversation
+      const otherPartyId = message.sender_id === userId 
+        ? message.recipient_id 
+        : message.sender_id;
       
-      if (!conversationsMap.has(recipientId)) {
-        conversationsMap.set(recipientId, {
-          userId: recipientId,
-          name: recipientProfile?.name || 'Unknown User',
-          role: recipientProfile?.role || 'unknown',
+      if (!conversationsMap.has(otherPartyId)) {
+        conversationsMap.set(otherPartyId, {
+          userId: otherPartyId,
+          name: `User ${otherPartyId.substring(0, 4)}`, // Temporary name
           lastMessage: message.content,
           lastMessageTime: message.created_at,
-          unread: 0
+          unread: message.recipient_id === userId && !message.read ? 1 : 0
         });
-      }
-    });
-    
-    // Process received messages
-    receivedMessages?.forEach((message) => {
-      const senderId = message.sender_id;
-      const senderProfile = message.profiles;
-      const isUnread = !message.read;
-      
-      if (!conversationsMap.has(senderId)) {
-        conversationsMap.set(senderId, {
-          userId: senderId,
-          name: senderProfile?.name || 'Unknown User',
-          role: senderProfile?.role || 'unknown',
-          lastMessage: message.content,
-          lastMessageTime: message.created_at,
-          unread: isUnread ? 1 : 0
-        });
-      } else if (
-        new Date(message.created_at) > 
-        new Date(conversationsMap.get(senderId).lastMessageTime)
-      ) {
+      } else if (new Date(message.created_at) > new Date(conversationsMap.get(otherPartyId).lastMessageTime)) {
         // Update if this is a more recent message
-        const conversation = conversationsMap.get(senderId);
+        const conversation = conversationsMap.get(otherPartyId);
         conversation.lastMessage = message.content;
         conversation.lastMessageTime = message.created_at;
-        if (isUnread) conversation.unread += 1;
+        if (message.recipient_id === userId && !message.read) {
+          conversation.unread += 1;
+        }
       }
     });
     
     // Convert map to array and sort by most recent message
     return Array.from(conversationsMap.values())
-      .sort((a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime));
+      .sort((a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime());
   } catch (error) {
     console.error('Error in getRecentConversations:', error);
     return [];
@@ -119,7 +95,7 @@ export async function sendMessage(
         read: false
       })
       .select()
-      .maybeSingle();
+      .single();
     
     if (error) {
       console.error('Error sending message:', error);

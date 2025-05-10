@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { OverviewTab } from "@/components/dashboard/tabs/OverviewTab";
 import { ClientsTab } from "@/components/dashboard/tabs/ClientsTab";
 import { WorkoutTab } from "@/components/dashboard/tabs/WorkoutTab";
@@ -52,7 +53,7 @@ const Dashboard = () => {
       {activeTab === "subscriptions" && <SubscriptionsTab />}
       {activeTab === "schedule" && <ScheduleTab />}
       {activeTab === "analytics" && <AnalyticsTab />}
-      {activeTab === "messages" && <MessagesTab />} {/* Add this line */}
+      {activeTab === "messages" && <MessagesTab />}
     </DashboardLayout>
   );
 };
