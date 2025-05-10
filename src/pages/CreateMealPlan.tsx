@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
   Plus, 
@@ -27,7 +27,9 @@ import {
 } from "@/components/ui/tooltip";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { createMealPlan } from "@/lib/supabase/meal-plans";
 
 interface Meal {
   id: string;
@@ -40,10 +42,19 @@ interface Meal {
   ingredients: string;
   instructions: string;
   imageUrl?: string;
+  time?: string;
 }
 
 const CreateMealPlan = () => {
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [duration, setDuration] = useState("");
+  const [targetCalories, setTargetCalories] = useState("");
   const [dietType, setDietType] = useState("balanced");
+  const [difficulty, setDifficulty] = useState("");
   const [meals, setMeals] = useState<Meal[]>([
     {
       id: "meal1",
@@ -55,6 +66,7 @@ const CreateMealPlan = () => {
       fat: "",
       ingredients: "",
       instructions: "",
+      time: "08:00"
     }
   ]);
   
@@ -71,6 +83,7 @@ const CreateMealPlan = () => {
         fat: "",
         ingredients: "",
         instructions: "",
+        time: ""
       }
     ]);
   };
@@ -107,18 +120,81 @@ const CreateMealPlan = () => {
     );
   };
 
-  const handleSave = () => {
-    toast({
-      title: "Meal Plan Saved",
-      description: "Your meal plan has been saved successfully.",
-    });
-  };
-
-  const handlePublish = () => {
-    toast({
-      title: "Meal Plan Published",
-      description: "Your meal plan has been published and is now available to clients.",
-    });
+  const handleSave = async (publishStatus: "draft" | "published") => {
+    if (!title) {
+      toast.error("Please enter a meal plan title");
+      return;
+    }
+    
+    if (meals.length === 0) {
+      toast.error("Please add at least one meal");
+      return;
+    }
+    
+    // Check if meals have required fields
+    const incompleteFields = meals.some(meal => !meal.name || !meal.calories);
+    if (incompleteFields) {
+      toast.error("Please fill in all required meal fields (name and calories)");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      // Format meals for database
+      const formattedMeals = meals.map(meal => ({
+        name: meal.name,
+        description: meal.description || null,
+        calories: parseInt(meal.calories) || 0,
+        protein: parseInt(meal.protein) || 0,
+        carbs: parseInt(meal.carbs) || 0,
+        fats: parseInt(meal.fat) || 0,
+        time: meal.time || null,
+        ingredients: meal.ingredients || null,
+        instructions: meal.instructions || null,
+        notes: null
+      }));
+      
+      // Create mealplan data object
+      const mealPlanData = {
+        title,
+        description,
+        trainer_id: profile?.role === 'trainer' ? user?.id : null,
+        client_id: profile?.role === 'client' ? user?.id : null,
+        meals: formattedMeals,
+        duration: duration ? parseInt(duration) : null,
+        target_calories: targetCalories ? parseInt(targetCalories) : null,
+        diet_type: dietType,
+        difficulty: difficulty || null,
+        status: publishStatus
+      };
+      
+      // Save to database
+      const savedMealPlan = await createMealPlan(mealPlanData);
+      
+      if (!savedMealPlan) {
+        throw new Error("Failed to save meal plan");
+      }
+      
+      toast.success(
+        publishStatus === 'published' 
+          ? "Meal Plan Published" 
+          : "Meal Plan Saved as Draft",
+        {
+          description: publishStatus === 'published'
+            ? "Your meal plan has been published and is now available to clients."
+            : "Your meal plan has been saved successfully."
+        }
+      );
+      
+      // Navigate back to dashboard
+      navigate('/dashboard?tab=meals');
+    } catch (error) {
+      console.error("Error saving meal plan:", error);
+      toast.error("There was a problem saving your meal plan");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -148,17 +224,37 @@ const CreateMealPlan = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Meal Plan Name</Label>
-                  <Input id="name" placeholder="e.g., High Protein Weight Loss Plan" />
+                  <Input 
+                    id="name" 
+                    placeholder="e.g., High Protein Weight Loss Plan"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="duration">Duration (days)</Label>
-                  <Input id="duration" type="number" placeholder="e.g., 7" min="1" />
+                  <Input 
+                    id="duration" 
+                    type="number" 
+                    placeholder="e.g., 7" 
+                    min="1" 
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="targetCalories">Target Daily Calories</Label>
-                  <Input id="targetCalories" type="number" placeholder="e.g., 2000" min="500" />
+                  <Input 
+                    id="targetCalories" 
+                    type="number" 
+                    placeholder="e.g., 2000" 
+                    min="500"
+                    value={targetCalories}
+                    onChange={(e) => setTargetCalories(e.target.value)}
+                  />
                 </div>
                 
                 <div className="space-y-2">
@@ -166,6 +262,8 @@ const CreateMealPlan = () => {
                   <select
                     id="difficulty"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(e.target.value)}
                   >
                     <option value="">Select skill level</option>
                     <option value="beginner">Beginner</option>
@@ -180,6 +278,8 @@ const CreateMealPlan = () => {
                     id="description" 
                     className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[100px]"
                     placeholder="Describe the meal plan, its benefits, and who it's designed for..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                   />
                 </div>
               </div>
@@ -324,6 +424,16 @@ const CreateMealPlan = () => {
                       </div>
                       
                       <div className="space-y-2">
+                        <Label htmlFor={`time-${meal.id}`}>Meal Time</Label>
+                        <Input 
+                          id={`time-${meal.id}`} 
+                          placeholder="e.g., 08:00" 
+                          value={meal.time || ""}
+                          onChange={(e) => updateMeal(meal.id, "time", e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
                         <Label htmlFor={`description-${meal.id}`}>Brief Description</Label>
                         <Input 
                           id={`description-${meal.id}`} 
@@ -432,11 +542,18 @@ const CreateMealPlan = () => {
             </div>
             
             <div className="flex justify-end space-x-3">
-              <Button variant="outline" onClick={handleSave}>
-                Save as Draft
+              <Button 
+                variant="outline" 
+                onClick={() => handleSave("draft")} 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Saving..." : "Save as Draft"}
               </Button>
-              <Button onClick={handlePublish}>
-                Publish Meal Plan
+              <Button 
+                onClick={() => handleSave("published")} 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Publishing..." : "Publish Meal Plan"}
               </Button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 
-import { supabase } from './client';
+import { supabase } from '@/integrations/supabase/client';
 import { MealPlan } from '@/types/supabase';
 
 // Get all meal plans with optional filtering by trainer or client
@@ -51,8 +51,9 @@ export async function getMealPlanById(mealPlanId: string): Promise<MealPlan | nu
 }
 
 // Create a new meal plan
-export async function createMealPlan(mealPlan: Omit<MealPlan, 'id' | 'created_at'>): Promise<MealPlan | null> {
+export async function createMealPlan(mealPlan: any): Promise<MealPlan | null> {
   try {
+    console.log('Creating meal plan:', mealPlan);
     const { data, error } = await supabase
       .from('meal_plans')
       .insert(mealPlan)

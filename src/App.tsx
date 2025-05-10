@@ -18,7 +18,7 @@ import Exercises from "@/pages/Exercises";
 import Messaging from "@/pages/Messaging";
 import Clients from "@/pages/Clients";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 import "@/App.css";
 
 function App() {
@@ -71,6 +71,10 @@ function AppRoutes() {
       />
       <Route 
         path="/create-meal-plan" 
+        element={requireAuth(<CreateMealPlan />)} 
+      />
+      <Route 
+        path="/meal-plan/create" 
         element={requireAuth(<CreateMealPlan />)} 
       />
       <Route 

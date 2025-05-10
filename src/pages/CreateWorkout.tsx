@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -5,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { WorkoutForm } from "@/components/workout/WorkoutForm";
 import { WorkoutFormData } from "@/components/workout/types";
 import { createWorkout } from "@/lib/supabase/workouts";
@@ -17,7 +18,7 @@ const CreateWorkout = () => {
 
   const saveWorkout = async (data: WorkoutFormData, status: 'draft' | 'published') => {
     if (!user) {
-      toast({ title: "Error", description: "You must be logged in to save a workout", variant: "destructive" });
+      toast.error("You must be logged in to save a workout");
       return;
     }
 
@@ -55,7 +56,12 @@ const CreateWorkout = () => {
         description: data.description,
         trainer_id: profile?.role === 'trainer' ? user.id : null,
         client_id: clientId,
-        exercises: formattedExercises
+        exercises: formattedExercises,
+        duration: data.duration ? parseInt(data.duration) : undefined,
+        difficulty: data.difficulty || undefined,
+        frequency: data.frequency || undefined,
+        workout_type: data.workoutType || 'strength',
+        status: status
       };
 
       // Save to database
@@ -65,23 +71,24 @@ const CreateWorkout = () => {
         throw new Error("Failed to save workout");
       }
 
-      toast({
-        title: status === 'published' ? "Workout Published" : "Draft Saved",
-        description: status === 'published' ? "Your workout has been published successfully" : "Your workout has been saved as draft"
-      });
+      toast.success(
+        status === 'published' ? "Workout Published" : "Draft Saved",
+        {
+          description: status === 'published' 
+            ? "Your workout has been published successfully" 
+            : "Your workout has been saved as draft"
+        }
+      );
 
+      // Redirect to appropriate page
       if (status === 'published') {
-        navigate(`/workout-plan/${savedWorkout.id}`);
+        navigate(`/workout/${savedWorkout.id}`);
       } else {
         navigate('/dashboard?tab=workouts');
       }
     } catch (error) {
       console.error('Error saving workout:', error);
-      toast({
-        title: "Error",
-        description: "There was a problem saving your workout. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("There was a problem saving your workout. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
