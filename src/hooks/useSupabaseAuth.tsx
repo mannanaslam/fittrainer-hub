@@ -25,8 +25,13 @@ export function useSupabaseAuth() {
         setUser(newSession?.user ?? null);
         
         if (newSession?.user) {
-          const userProfile = await fetchUserProfile(newSession.user.id);
-          setProfile(userProfile);
+          try {
+            const userProfile = await fetchUserProfile(newSession.user.id);
+            setProfile(userProfile);
+          } catch (error) {
+            console.error("Error fetching user profile:", error);
+            setProfile(null);
+          }
         } else {
           setProfile(null);
         }
@@ -36,18 +41,30 @@ export function useSupabaseAuth() {
     );
     
     // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
-      console.log("Initial session check:", initialSession?.user?.id);
-      setSession(initialSession);
-      setUser(initialSession?.user ?? null);
-      
-      if (initialSession?.user) {
-        const userProfile = await fetchUserProfile(initialSession.user.id);
-        setProfile(userProfile);
+    const checkExistingSession = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log("Initial session check:", initialSession?.user?.id);
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
+        
+        if (initialSession?.user) {
+          try {
+            const userProfile = await fetchUserProfile(initialSession.user.id);
+            setProfile(userProfile);
+          } catch (error) {
+            console.error("Error fetching user profile:", error);
+            setProfile(null);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
-    });
+    };
+
+    checkExistingSession();
 
     return () => {
       subscription.unsubscribe();
@@ -97,8 +114,12 @@ export function useSupabaseAuth() {
       
       // Fetch profile after successful sign in
       if (data?.user) {
-        const userProfile = await fetchUserProfile(data.user.id);
-        setProfile(userProfile);
+        try {
+          const userProfile = await fetchUserProfile(data.user.id);
+          setProfile(userProfile);
+        } catch (profileError) {
+          console.error("Error fetching user profile after login:", profileError);
+        }
       }
       
       toast({

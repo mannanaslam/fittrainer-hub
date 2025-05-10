@@ -43,57 +43,51 @@ function AppRoutes() {
       <Route path="/update-password" element={<UpdatePassword />} />
       <Route 
         path="/dashboard" 
-        element={<RequireAuth><Dashboard /></RequireAuth>} 
+        element={requireAuth(<Dashboard />)} 
       />
       <Route 
         path="/profile" 
-        element={<RequireAuth><Profile /></RequireAuth>} 
+        element={requireAuth(<Profile />)} 
       />
       <Route 
         path="/clients" 
-        element={<RequireAuth><Clients /></RequireAuth>} 
+        element={requireAuth(<Clients />)} 
       />
       <Route 
         path="/clients/:id" 
-        element={<RequireAuth><ClientDetails /></RequireAuth>} 
+        element={requireAuth(<ClientDetails />)} 
       />
       <Route 
         path="/create-workout" 
-        element={<RequireAuth><CreateWorkout /></RequireAuth>} 
+        element={requireAuth(<CreateWorkout />)} 
       />
       <Route 
         path="/workout/:id" 
-        element={<RequireAuth><WorkoutPlan /></RequireAuth>} 
+        element={requireAuth(<WorkoutPlan />)} 
       />
       <Route 
         path="/edit-workout/:id" 
-        element={<RequireAuth><EditWorkout /></RequireAuth>} 
+        element={requireAuth(<EditWorkout />)} 
       />
       <Route 
         path="/create-meal-plan" 
-        element={<RequireAuth><CreateMealPlan /></RequireAuth>} 
+        element={requireAuth(<CreateMealPlan />)} 
       />
       <Route 
         path="/create-subscription" 
-        element={<RequireAuth><CreateSubscription /></RequireAuth>} 
+        element={requireAuth(<CreateSubscription />)} 
       />
       <Route 
         path="/exercises" 
-        element={<RequireAuth><Exercises /></RequireAuth>} 
+        element={requireAuth(<Exercises />)} 
       />
       <Route 
         path="/messages" 
-        element={<RequireAuth><Messaging /></RequireAuth>} 
+        element={requireAuth(<Messaging />)} 
       />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
-}
-
-// Auth guard component
-function RequireAuth({ children }: { children: JSX.Element }) {
-  const { requireAuth } = useAuth();
-  return requireAuth(children);
 }
 
 export default App;
