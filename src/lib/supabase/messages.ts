@@ -11,7 +11,7 @@ export async function getMessagesBetweenUsers(
     const { data, error } = await supabase
       .from('messages')
       .select('*')
-      .or(`sender_id.eq.${senderId},recipient_id.eq.${recipientId}),and(sender_id.eq.${recipientId},recipient_id.eq.${senderId})`)
+      .or(`and(sender_id.eq.${senderId},recipient_id.eq.${recipientId}),and(sender_id.eq.${recipientId},recipient_id.eq.${senderId})`)
       .order('created_at', { ascending: false });
     
     if (error) {
