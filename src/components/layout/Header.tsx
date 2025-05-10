@@ -78,7 +78,7 @@ export function Header() {
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="ghost" className="animate-hover">
+                  <Button variant="outline" className="animate-hover bg-white bg-opacity-20">
                     Log in
                   </Button>
                 </Link>
@@ -141,7 +141,7 @@ export function Header() {
                   ) : (
                     <>
                       <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="outline" className="w-full">
+                        <Button variant="outline" className="w-full bg-white bg-opacity-20">
                           Log in
                         </Button>
                       </Link>

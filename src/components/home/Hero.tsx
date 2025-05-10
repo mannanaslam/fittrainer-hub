@@ -51,7 +51,7 @@ export function Hero() {
                   </Button>
                 </Link>
                 <Link to="/login">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto bg-white bg-opacity-20">
                     Log In
                   </Button>
                 </Link>
