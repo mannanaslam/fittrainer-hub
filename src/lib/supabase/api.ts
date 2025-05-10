@@ -1,32 +1,36 @@
-import { supabase } from './supabase';
+import { supabase } from '@/integrations/supabase/client';
 import type {
-  User,
-  UserProfile,
-  WorkoutPlan,
-  Exercise,
-  DietPlan,
-  Meal,
+  Profile,
+  Workout,
+  MealPlan,
   Subscription,
+  Message,
+  HealthMetric
+} from '@/types/supabase';
+import type {
+  Exercise,
+  WorkoutPlan,
+  Meal,
+  DietPlan,
   ClientProgress,
   WorkoutLog,
   Measurement,
-  Goal,
-} from '../types';
+  Goal
+} from '@/types/api';
 
 // Profile API
 export const profileApi = {
-  async getProfile(userId: string): Promise<UserProfile | null> {
+  async getProfile(userId: string): Promise<Profile | null> {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .single();
-
     if (error) throw error;
     return data;
   },
 
-  async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
+  async updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile> {
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)

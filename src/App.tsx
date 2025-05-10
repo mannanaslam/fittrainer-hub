@@ -7,6 +7,14 @@ import ClientDashboard from './pages/ClientDashboard';
 import Unauthorized from './pages/Unauthorized';
 import NotFound from './pages/NotFound';
 
+// Configure future flags for React Router v7
+const router = {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
+};
+
 function PrivateRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
   const { user, loading } = useAuth();
 
@@ -31,7 +39,7 @@ function PrivateRoute({ children, allowedRoles }: { children: React.ReactNode; a
 
 function App() {
   return (
-    <Router>
+    <Router future={router.future}>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
