@@ -1,7 +1,9 @@
 
 import { Routes, Route } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth"; // Import from hooks
 import { Toaster } from "sonner";
+import { ReactNode } from "react";
 
 // Pages
 import Index from "@/pages/Index";
@@ -31,10 +33,14 @@ function App() {
   );
 }
 
+// ProtectedRoute component
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { requireAuth } = useAuth();
+  return requireAuth(children);
+}
+
 // Separate component for routes to ensure hooks are used properly
 function AppRoutes() {
-  const { requireAuth } = useAuth();
-  
   return (
     <Routes>
       {/* Public Routes */}
@@ -45,18 +51,18 @@ function AppRoutes() {
       <Route path="/update-password" element={<UpdatePassword />} />
       
       {/* Protected Routes */}
-      <Route path="/dashboard" element={requireAuth(<Dashboard />)} />
-      <Route path="/profile" element={requireAuth(<Profile />)} />
-      <Route path="/clients" element={requireAuth(<Clients />)} />
-      <Route path="/clients/:id" element={requireAuth(<ClientDetails />)} />
-      <Route path="/create-workout" element={requireAuth(<CreateWorkout />)} />
-      <Route path="/workout/:id" element={requireAuth(<WorkoutPlan />)} />
-      <Route path="/edit-workout/:id" element={requireAuth(<EditWorkout />)} />
-      <Route path="/create-meal-plan" element={requireAuth(<CreateMealPlan />)} />
-      <Route path="/meal-plan/create" element={requireAuth(<CreateMealPlan />)} />
-      <Route path="/create-subscription" element={requireAuth(<CreateSubscription />)} />
-      <Route path="/exercises" element={requireAuth(<Exercises />)} />
-      <Route path="/messages" element={requireAuth(<Messaging />)} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
+      <Route path="/clients/:id" element={<ProtectedRoute><ClientDetails /></ProtectedRoute>} />
+      <Route path="/create-workout" element={<ProtectedRoute><CreateWorkout /></ProtectedRoute>} />
+      <Route path="/workout/:id" element={<ProtectedRoute><WorkoutPlan /></ProtectedRoute>} />
+      <Route path="/edit-workout/:id" element={<ProtectedRoute><EditWorkout /></ProtectedRoute>} />
+      <Route path="/create-meal-plan" element={<ProtectedRoute><CreateMealPlan /></ProtectedRoute>} />
+      <Route path="/meal-plan/create" element={<ProtectedRoute><CreateMealPlan /></ProtectedRoute>} />
+      <Route path="/create-subscription" element={<ProtectedRoute><CreateSubscription /></ProtectedRoute>} />
+      <Route path="/exercises" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
+      <Route path="/messages" element={<ProtectedRoute><Messaging /></ProtectedRoute>} />
       
       {/* 404 Page */}
       <Route path="*" element={<NotFound />} />
