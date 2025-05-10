@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/Container";
@@ -11,25 +10,25 @@ export function Hero() {
     <div className="relative pt-28 pb-20 md:py-32 overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl transform translate-x-1/2 translate-y-1/2" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl transform translate-x-1/2 translate-y-1/2" />
       </div>
       
       <Container className="relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-primary/10 text-primary mb-6 animate-fade-in">
+          <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-primary/20 text-primary mb-6">
             Revolutionizing fitness management
           </span>
           
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 animate-fade-in [animation-delay:200ms]">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6">
             Manage Your Fitness Business <span className="text-primary">Effortlessly</span>
           </h1>
           
-          <p className="text-xl text-muted-foreground mb-8 animate-fade-in [animation-delay:400ms]">
+          <p className="text-xl text-muted-foreground mb-8">
             Create, deliver, and monetize personalized workout and diet plans — all in one beautiful platform. Elevate your client's fitness journey.
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:600ms]">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {loading ? (
               <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4">
                 <div className="animate-pulse bg-secondary h-11 w-32 rounded-md"></div>
@@ -49,7 +48,7 @@ export function Hero() {
                   </Button>
                 </Link>
                 <Link to="/login">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto bg-white/20">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
                     Log In
                   </Button>
                 </Link>
@@ -59,9 +58,9 @@ export function Hero() {
         </div>
         
         {/* Preview Image */}
-        <div className="mt-16 animate-fade-in [animation-delay:800ms]">
+        <div className="mt-16">
           <div className="relative mx-auto max-w-5xl">
-            <div className="glass-card rounded-2xl overflow-hidden shadow-2xl">
+            <div className="bg-background/80 backdrop-blur-md rounded-2xl overflow-hidden shadow-2xl border">
               <div className="aspect-[16/9] bg-muted p-2">
                 <div className="w-full h-full rounded-lg flex items-center justify-center overflow-hidden">
                   <img 

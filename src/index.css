@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -78,16 +77,20 @@
   
   /* Glass effect styling */
   .glass {
-    @apply bg-white/70 backdrop-blur-md border border-white/20;
+    @apply bg-background/80 backdrop-blur-md border border-border;
   }
   
   .glass-card {
-    @apply bg-white/90 backdrop-blur-md border border-white/20 shadow-lg;
+    @apply bg-background/90 backdrop-blur-md border border-border shadow-lg;
   }
   
   /* Button styling enhancements */
-  .btn-glass {
-    @apply bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/10;
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary/90;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-primary text-primary hover:bg-primary/10;
   }
   
   /* Animation classes */

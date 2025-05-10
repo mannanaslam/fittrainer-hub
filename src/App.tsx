@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,8 +34,8 @@ function App() {
 
 // ProtectedRoute component
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { requireAuth } = useAuth();
-  return requireAuth(children);
+  const auth = useAuth();
+  return auth.requireAuth(children);
 }
 
 // Separate component for routes to ensure hooks are used properly

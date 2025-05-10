@@ -1,4 +1,3 @@
-
 import { useAuth as useAuthContext } from "@/contexts/AuthContext";
 
 /**
@@ -15,10 +14,11 @@ export function useAuth() {
       user: null,
       profile: null,
       loading: false,
+      error: null,
       signIn: async () => ({ data: null, error: new Error("Auth not initialized") }),
       signUp: async () => ({ data: null, error: new Error("Auth not initialized") }),
       signOut: async () => {},
-      requireAuth: (children) => <>{children}</>,
+      requireAuth: (children) => children,
     };
   }
 }

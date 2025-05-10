@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Dumbbell, Menu, X } from "lucide-react";
@@ -32,7 +31,7 @@ export function Header() {
     <header 
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4",
-        isScrolled ? "glass" : "bg-transparent"
+        isScrolled ? "bg-white shadow-md" : "bg-white/95"
       )}
     >
       <Container>
@@ -49,7 +48,7 @@ export function Header() {
                 key={item.name}
                 to={item.path}
                 className={cn(
-                  "text-sm font-medium transition-colors animate-hover hover:text-primary",
+                  "text-sm font-medium transition-colors hover:text-primary",
                   location.pathname === item.path && "text-primary"
                 )}
               >
@@ -63,19 +62,19 @@ export function Header() {
               <div className="animate-pulse bg-secondary h-10 w-20 rounded"></div>
             ) : user ? (
               <Link to="/dashboard">
-                <Button className="animate-hover">
+                <Button className="bg-primary text-white hover:bg-primary/90">
                   Dashboard
                 </Button>
               </Link>
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="outline" className="animate-hover bg-white/20">
+                  <Button variant="outline" className="border-2 border-primary text-primary hover:bg-primary/10">
                     Log in
                   </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button className="animate-hover">
+                  <Button className="bg-primary text-white hover:bg-primary/90">
                     Sign up
                   </Button>
                 </Link>
@@ -101,8 +100,8 @@ export function Header() {
       
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden animate-fade-in">
-          <div className="glass mt-4 mx-4 rounded-xl overflow-hidden">
+        <div className="md:hidden">
+          <div className="bg-white mt-4 mx-4 rounded-xl overflow-hidden shadow-lg border">
             <div className="py-4 px-2">
               <nav className="flex flex-col space-y-4">
                 {mainNavItems.map((item) => (
@@ -126,19 +125,19 @@ export function Header() {
                     <div className="animate-pulse bg-secondary h-10 rounded"></div>
                   ) : user ? (
                     <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button className="w-full">
+                      <Button className="w-full bg-primary text-white hover:bg-primary/90">
                         Dashboard
                       </Button>
                     </Link>
                   ) : (
                     <>
                       <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="outline" className="w-full bg-white bg-opacity-20">
+                        <Button variant="outline" className="w-full border-2 border-primary text-primary hover:bg-primary/10">
                           Log in
                         </Button>
                       </Link>
                       <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
-                        <Button className="w-full">
+                        <Button className="w-full bg-primary text-white hover:bg-primary/90">
                           Sign up
                         </Button>
                       </Link>
