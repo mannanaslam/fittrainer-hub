@@ -7,9 +7,4 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// This file is maintained for backward compatibility
-// All functions are now split into separate modules in the supabase/ directory
-
-export * from './supabase/index';
+export const supabase = createClient(supabaseUrl, supabaseAnonKey); 
