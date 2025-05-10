@@ -6,7 +6,7 @@ import { Profile } from '@/types/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserProfile, signUpUser, signInUser, signOutUser } from '@/lib/auth-api';
 
-export const useSupabaseAuth = () => {
+export function useSupabaseAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -142,4 +142,4 @@ export const useSupabaseAuth = () => {
     signIn,
     signOut,
   };
-};
+}

@@ -1,5 +1,5 @@
 
-import { createContext, ReactNode } from "react";
+import { createContext, ReactNode, useContext } from "react";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Navigate, useLocation } from "react-router-dom";
 
@@ -14,17 +14,10 @@ type AuthContextType = {
 };
 
 // Create context with default values
-export const AuthContext = createContext<AuthContextType>({
-  user: null,
-  profile: null,
-  loading: true,
-  signIn: async () => ({ data: null, error: null }),
-  signUp: async () => ({ data: null, error: null }),
-  signOut: async () => {},
-  requireAuth: () => <></>,
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const auth = useSupabaseAuth();
   const {
     user,
     profile,
@@ -32,7 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signIn,
     signUp,
     signOut,
-  } = useSupabaseAuth();
+  } = auth;
   
   console.log("AuthProvider loading:", loading, "user:", user ? "exists" : "null");
   
@@ -75,4 +68,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };
