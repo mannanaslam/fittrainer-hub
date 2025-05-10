@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Plus, Filter, Search, Trash2, Clock, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-import { getWorkouts } from "@/lib/supabase";
+import { getWorkouts } from "@/lib/supabase/workouts";
 import { Workout } from "@/types/supabase";
 
 export function WorkoutTab() {

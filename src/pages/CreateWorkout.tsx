@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -9,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { WorkoutForm } from "@/components/workout/WorkoutForm";
 import { WorkoutFormData } from "@/components/workout/types";
-import { createWorkout } from "@/lib/supabase";
+import { createWorkout } from "@/lib/supabase/workouts";
 
 const CreateWorkout = () => {
   const navigate = useNavigate();
