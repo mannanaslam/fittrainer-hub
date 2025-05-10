@@ -157,7 +157,7 @@ export const WorkoutBasicInfo = ({ form }: WorkoutBasicInfoProps) => {
                 </FormControl>
                 <SelectContent>
                   {isLoading ? (
-                    <SelectItem value="" disabled>Loading clients...</SelectItem>
+                    <SelectItem value="loading" disabled>Loading clients...</SelectItem>
                   ) : clients.length > 0 ? (
                     clients.map(client => (
                       <SelectItem key={client.id} value={client.id}>
@@ -165,7 +165,7 @@ export const WorkoutBasicInfo = ({ form }: WorkoutBasicInfoProps) => {
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="" disabled>No clients available</SelectItem>
+                    <SelectItem value="no-clients" disabled>No clients available</SelectItem>
                   )}
                 </SelectContent>
               </Select>

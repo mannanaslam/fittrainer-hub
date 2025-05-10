@@ -32,6 +32,10 @@ export type Workout = {
   client_id: string | null;
   title: string;
   description: string | null;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  workout_type: 'strength' | 'cardio' | 'hiit' | 'flexibility' | 'balance' | 'mixed';
+  duration: number;
+  frequency: number;
   exercises: {
     name: string;
     sets: number;
