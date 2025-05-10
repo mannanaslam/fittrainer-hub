@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      health_metrics: {
+        Row: {
+          blood_pressure: string | null
+          body_fat_percentage: number | null
+          id: string
+          muscle_mass: number | null
+          recorded_at: string | null
+          resting_heart_rate: number | null
+          user_id: string | null
+          weight: number | null
+        }
+        Insert: {
+          blood_pressure?: string | null
+          body_fat_percentage?: number | null
+          id?: string
+          muscle_mass?: number | null
+          recorded_at?: string | null
+          resting_heart_rate?: number | null
+          user_id?: string | null
+          weight?: number | null
+        }
+        Update: {
+          blood_pressure?: string | null
+          body_fat_percentage?: number | null
+          id?: string
+          muscle_mass?: number | null
+          recorded_at?: string | null
+          resting_heart_rate?: number | null
+          user_id?: string | null
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_metrics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_plans: {
         Row: {
           client_id: string | null
@@ -74,13 +115,18 @@ export type Database = {
           email: string
           experience: number | null
           experience_level: string | null
+          fitness_level: string | null
           goals: string[] | null
+          height: number | null
           id: string
           name: string | null
+          notification_preferences: Json | null
           role: string
           specialization: string | null
           subscription_plan: string | null
+          target_weight: number | null
           updated_at: string | null
+          weight: number | null
         }
         Insert: {
           activity_level?: number | null
@@ -89,13 +135,18 @@ export type Database = {
           email: string
           experience?: number | null
           experience_level?: string | null
+          fitness_level?: string | null
           goals?: string[] | null
+          height?: number | null
           id: string
           name?: string | null
+          notification_preferences?: Json | null
           role?: string
           specialization?: string | null
           subscription_plan?: string | null
+          target_weight?: number | null
           updated_at?: string | null
+          weight?: number | null
         }
         Update: {
           activity_level?: number | null
@@ -104,13 +155,18 @@ export type Database = {
           email?: string
           experience?: number | null
           experience_level?: string | null
+          fitness_level?: string | null
           goals?: string[] | null
+          height?: number | null
           id?: string
           name?: string | null
+          notification_preferences?: Json | null
           role?: string
           specialization?: string | null
           subscription_plan?: string | null
+          target_weight?: number | null
           updated_at?: string | null
+          weight?: number | null
         }
         Relationships: []
       }

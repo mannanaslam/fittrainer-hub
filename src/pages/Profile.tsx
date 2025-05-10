@@ -8,8 +8,28 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Check, Loader2, Shield, User } from "lucide-react";
+import { 
+  Camera, 
+  Check, 
+  Loader2, 
+  Shield, 
+  User, 
+  Bell, 
+  Heart, 
+  BarChart3, 
+  Scale 
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { upsertUserProfile } from "@/lib/supabase/profiles";
+
+const FITNESS_LEVELS = [
+  { value: "beginner", label: "Beginner" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "advanced", label: "Advanced" },
+  { value: "elite", label: "Elite" }
+];
 
 const Profile = () => {
   const { user, profile } = useAuth();
@@ -17,7 +37,7 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
   
-  const [formData, setFormData] = useState({
+  const [generalForm, setGeneralForm] = useState({
     name: "",
     email: "",
     bio: "",
@@ -25,35 +45,180 @@ const Profile = () => {
     experience: "",
   });
   
+  const [fitnessForm, setFitnessForm] = useState({
+    height: "",
+    weight: "",
+    targetWeight: "",
+    fitnessLevel: "",
+    goals: ""
+  });
+  
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    email: true,
+    app: true
+  });
+  
   useEffect(() => {
     if (profile) {
-      setFormData({
+      setGeneralForm({
         name: profile.name || "",
         email: profile.email || "",
         bio: profile.bio || "",
         specialization: profile.specialization || "",
         experience: profile.experience ? profile.experience.toString() : "",
       });
+      
+      setFitnessForm({
+        height: profile.height ? profile.height.toString() : "",
+        weight: profile.weight ? profile.weight.toString() : "",
+        targetWeight: profile.target_weight ? profile.target_weight.toString() : "",
+        fitnessLevel: profile.fitness_level || "",
+        goals: profile.goals ? profile.goals.join(", ") : ""
+      });
+      
+      setNotificationPrefs({
+        email: profile.notification_preferences?.email !== false,
+        app: profile.notification_preferences?.app !== false
+      });
     }
   }, [profile]);
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleGeneralInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setGeneralForm((prev) => ({ ...prev, [name]: value }));
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFitnessInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFitnessForm((prev) => ({ ...prev, [name]: value }));
+  };
+  
+  const handleNotificationChange = (key: 'email' | 'app', value: boolean) => {
+    setNotificationPrefs(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+  
+  const handleGeneralSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user || !profile) return;
+    
     setIsLoading(true);
     
-    // Simulate API call delay
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Profile updated",
-        description: "Your profile information has been successfully updated.",
+    try {
+      const updatedProfile = await upsertUserProfile({
+        id: user.id,
+        name: generalForm.name,
+        email: profile.email,
+        bio: generalForm.bio,
+        role: profile.role,
+        specialization: profile.role === 'trainer' ? generalForm.specialization : null,
+        experience: profile.role === 'trainer' && generalForm.experience 
+          ? parseInt(generalForm.experience) 
+          : null
       });
-    }, 1000);
+      
+      if (updatedProfile) {
+        toast({
+          title: "Profile updated",
+          description: "Your profile information has been successfully updated.",
+        });
+      } else {
+        throw new Error("Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Update failed",
+        description: "There was an error updating your profile. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleFitnessSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!user || !profile) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const goalsArray = fitnessForm.goals
+        .split(',')
+        .map(goal => goal.trim())
+        .filter(goal => goal !== "");
+        
+      const updatedProfile = await upsertUserProfile({
+        id: user.id,
+        email: profile.email,
+        role: profile.role,
+        name: profile.name,
+        height: fitnessForm.height ? parseFloat(fitnessForm.height) : null,
+        weight: fitnessForm.weight ? parseFloat(fitnessForm.weight) : null,
+        target_weight: fitnessForm.targetWeight ? parseFloat(fitnessForm.targetWeight) : null,
+        fitness_level: fitnessForm.fitnessLevel || null,
+        goals: goalsArray.length > 0 ? goalsArray : null
+      });
+      
+      if (updatedProfile) {
+        toast({
+          title: "Fitness profile updated",
+          description: "Your fitness information has been successfully updated.",
+        });
+      } else {
+        throw new Error("Failed to update fitness profile");
+      }
+    } catch (error) {
+      console.error("Error updating fitness profile:", error);
+      toast({
+        title: "Update failed",
+        description: "There was an error updating your fitness information. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleNotificationsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!user || !profile) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const updatedProfile = await upsertUserProfile({
+        id: user.id,
+        email: profile.email,
+        role: profile.role,
+        name: profile.name,
+        notification_preferences: notificationPrefs
+      });
+      
+      if (updatedProfile) {
+        toast({
+          title: "Notification preferences updated",
+          description: "Your notification settings have been successfully saved.",
+        });
+      } else {
+        throw new Error("Failed to update notification preferences");
+      }
+    } catch (error) {
+      console.error("Error updating notification preferences:", error);
+      toast({
+        title: "Update failed",
+        description: "There was an error updating your notification preferences. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   return (
@@ -67,10 +232,11 @@ const Profile = () => {
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-3 w-full max-w-md">
+          <TabsList className="grid grid-cols-4 w-full max-w-3xl">
             <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
+            <TabsTrigger value="fitness">Fitness Profile</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="security">Security</TabsTrigger>
           </TabsList>
           
           <TabsContent value="general" className="space-y-6">
@@ -82,7 +248,7 @@ const Profile = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleGeneralSubmit} className="space-y-6">
                   <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
                     <div className="relative">
                       <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-semibold">
@@ -112,8 +278,8 @@ const Profile = () => {
                         id="name"
                         name="name"
                         placeholder="Your full name"
-                        value={formData.name}
-                        onChange={handleInputChange}
+                        value={generalForm.name}
+                        onChange={handleGeneralInputChange}
                       />
                     </div>
                     
@@ -123,8 +289,8 @@ const Profile = () => {
                         id="email"
                         name="email"
                         type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
+                        value={generalForm.email}
+                        onChange={handleGeneralInputChange}
                         disabled
                       />
                       <p className="text-xs text-muted-foreground">
@@ -138,8 +304,8 @@ const Profile = () => {
                         id="bio"
                         name="bio"
                         placeholder="Tell clients about yourself and your experience"
-                        value={formData.bio}
-                        onChange={handleInputChange}
+                        value={generalForm.bio}
+                        onChange={handleGeneralInputChange}
                         rows={4}
                       />
                     </div>
@@ -152,8 +318,8 @@ const Profile = () => {
                             id="specialization"
                             name="specialization"
                             placeholder="Your area of expertise"
-                            value={formData.specialization}
-                            onChange={handleInputChange}
+                            value={generalForm.specialization}
+                            onChange={handleGeneralInputChange}
                           />
                         </div>
                         
@@ -164,8 +330,8 @@ const Profile = () => {
                             name="experience"
                             type="number"
                             placeholder="Years of professional experience"
-                            value={formData.experience}
-                            onChange={handleInputChange}
+                            value={generalForm.experience}
+                            onChange={handleGeneralInputChange}
                           />
                         </div>
                       </>
@@ -183,6 +349,191 @@ const Profile = () => {
                         <>
                           <Check className="mr-2 h-4 w-4" />
                           Save Changes
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="fitness" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Fitness Profile</CardTitle>
+                <CardDescription>
+                  Update your fitness details and goals
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleFitnessSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Scale className="h-4 w-4 text-muted-foreground" />
+                            <Label htmlFor="height">Height (cm)</Label>
+                          </div>
+                          <Input
+                            id="height"
+                            name="height"
+                            type="number"
+                            placeholder="Enter your height in cm"
+                            value={fitnessForm.height}
+                            onChange={handleFitnessInputChange}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Scale className="h-4 w-4 text-muted-foreground" />
+                            <Label htmlFor="weight">Current Weight (kg)</Label>
+                          </div>
+                          <Input
+                            id="weight"
+                            name="weight"
+                            type="number"
+                            placeholder="Enter your current weight in kg"
+                            value={fitnessForm.weight}
+                            onChange={handleFitnessInputChange}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                            <Label htmlFor="targetWeight">Target Weight (kg)</Label>
+                          </div>
+                          <Input
+                            id="targetWeight"
+                            name="targetWeight"
+                            type="number"
+                            placeholder="Enter your target weight in kg"
+                            value={fitnessForm.targetWeight}
+                            onChange={handleFitnessInputChange}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Heart className="h-4 w-4 text-muted-foreground" />
+                            <Label htmlFor="fitnessLevel">Fitness Level</Label>
+                          </div>
+                          <Select 
+                            value={fitnessForm.fitnessLevel} 
+                            onValueChange={(value) => setFitnessForm(prev => ({...prev, fitnessLevel: value}))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select your fitness level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {FITNESS_LEVELS.map((level) => (
+                                <SelectItem key={level.value} value={level.value}>
+                                  {level.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                            <Label htmlFor="goals">Fitness Goals</Label>
+                          </div>
+                          <Textarea
+                            id="goals"
+                            name="goals"
+                            placeholder="Enter your fitness goals, separated by commas"
+                            value={fitnessForm.goals}
+                            onChange={handleFitnessInputChange}
+                            rows={4}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Example: Weight loss, Muscle gain, Improved endurance
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="mr-2 h-4 w-4" />
+                          Save Fitness Profile
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="notifications" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Notification Preferences</CardTitle>
+                <CardDescription>
+                  Choose how you'd like to be notified
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleNotificationsSubmit} className="space-y-8">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="email-notifications">Email Notifications</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Receive updates, reminders, and messages via email
+                        </p>
+                      </div>
+                      <Switch
+                        id="email-notifications"
+                        checked={notificationPrefs.email}
+                        onCheckedChange={(checked) => handleNotificationChange('email', checked)}
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="app-notifications">In-App Notifications</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Receive notifications within the application
+                        </p>
+                      </div>
+                      <Switch
+                        id="app-notifications"
+                        checked={notificationPrefs.app}
+                        onCheckedChange={(checked) => handleNotificationChange('app', checked)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Bell className="mr-2 h-4 w-4" />
+                          Save Notification Preferences
                         </>
                       )}
                     </Button>
@@ -224,22 +575,6 @@ const Profile = () => {
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="notifications" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Preferences</CardTitle>
-                <CardDescription>
-                  Choose how you'd like to be notified
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="py-8 text-center text-muted-foreground">
-                  Notification preferences will be added in a future update.
-                </p>
               </CardContent>
             </Card>
           </TabsContent>

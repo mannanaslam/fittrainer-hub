@@ -1,6 +1,6 @@
 
 import { supabase } from './client';
-import { Profile } from '@/types/supabase';
+import { Profile, HealthMetric } from '@/types/supabase';
 
 // Helper function to get the current user's profile
 export async function getCurrentUserProfile(): Promise<Profile | null> {
@@ -111,5 +111,89 @@ export async function upsertUserProfile(profileData: Pick<Profile, 'id'> & Parti
   } catch (error) {
     console.error('Error in upsertUserProfile:', error);
     return null;
+  }
+}
+
+// Get health metrics for a user
+export async function getUserHealthMetrics(userId: string): Promise<HealthMetric[]> {
+  try {
+    const { data, error } = await supabase
+      .from('health_metrics')
+      .select('*')
+      .eq('user_id', userId)
+      .order('recorded_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching health metrics:', error);
+      return [];
+    }
+    
+    return data as HealthMetric[];
+  } catch (error) {
+    console.error('Error in getUserHealthMetrics:', error);
+    return [];
+  }
+}
+
+// Add a new health metric record
+export async function addHealthMetric(metricData: Omit<HealthMetric, 'id' | 'recorded_at'>): Promise<HealthMetric | null> {
+  try {
+    const { data, error } = await supabase
+      .from('health_metrics')
+      .insert(metricData)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error adding health metric:', error);
+      return null;
+    }
+    
+    return data as HealthMetric;
+  } catch (error) {
+    console.error('Error in addHealthMetric:', error);
+    return null;
+  }
+}
+
+// Update a health metric record
+export async function updateHealthMetric(id: string, metricData: Partial<Omit<HealthMetric, 'id' | 'user_id'>>): Promise<HealthMetric | null> {
+  try {
+    const { data, error } = await supabase
+      .from('health_metrics')
+      .update(metricData)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error updating health metric:', error);
+      return null;
+    }
+    
+    return data as HealthMetric;
+  } catch (error) {
+    console.error('Error in updateHealthMetric:', error);
+    return null;
+  }
+}
+
+// Delete a health metric record
+export async function deleteHealthMetric(id: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('health_metrics')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error deleting health metric:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteHealthMetric:', error);
+    return false;
   }
 }
