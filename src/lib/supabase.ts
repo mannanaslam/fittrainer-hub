@@ -1,4 +1,3 @@
-
 // Use the official Supabase client from the integrations folder
 import { supabase as officialClient } from '@/integrations/supabase/client';
 import { Profile, Workout, MealPlan, Subscription } from '@/types/supabase';
@@ -133,6 +132,7 @@ export async function getWorkoutById(workoutId: string): Promise<Workout | null>
 // Create a new workout
 export async function createWorkout(workout: Omit<Workout, 'id' | 'created_at'>): Promise<Workout | null> {
   try {
+    console.log("Creating workout:", workout);
     const { data, error } = await supabase
       .from('workouts')
       .insert(workout)
@@ -144,10 +144,56 @@ export async function createWorkout(workout: Omit<Workout, 'id' | 'created_at'>)
       return null;
     }
     
+    console.log("Workout created successfully:", data);
     return data as Workout;
   } catch (error) {
     console.error('Error in createWorkout:', error);
     return null;
+  }
+}
+
+// Update an existing workout
+export async function updateWorkout(
+  workoutId: string, 
+  updates: Partial<Omit<Workout, 'id' | 'created_at'>>
+): Promise<Workout | null> {
+  try {
+    const { data, error } = await supabase
+      .from('workouts')
+      .update(updates)
+      .eq('id', workoutId)
+      .select()
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error updating workout:', error);
+      return null;
+    }
+    
+    return data as Workout;
+  } catch (error) {
+    console.error('Error in updateWorkout:', error);
+    return null;
+  }
+}
+
+// Delete a workout
+export async function deleteWorkout(workoutId: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('workouts')
+      .delete()
+      .eq('id', workoutId);
+    
+    if (error) {
+      console.error('Error deleting workout:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteWorkout:', error);
+    return false;
   }
 }
 
@@ -217,6 +263,51 @@ export async function createMealPlan(mealPlan: Omit<MealPlan, 'id' | 'created_at
   } catch (error) {
     console.error('Error in createMealPlan:', error);
     return null;
+  }
+}
+
+// Update an existing meal plan
+export async function updateMealPlan(
+  mealPlanId: string, 
+  updates: Partial<Omit<MealPlan, 'id' | 'created_at'>>
+): Promise<MealPlan | null> {
+  try {
+    const { data, error } = await supabase
+      .from('meal_plans')
+      .update(updates)
+      .eq('id', mealPlanId)
+      .select()
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error updating meal plan:', error);
+      return null;
+    }
+    
+    return data as MealPlan;
+  } catch (error) {
+    console.error('Error in updateMealPlan:', error);
+    return null;
+  }
+}
+
+// Delete a meal plan
+export async function deleteMealPlan(mealPlanId: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('meal_plans')
+      .delete()
+      .eq('id', mealPlanId);
+    
+    if (error) {
+      console.error('Error deleting meal plan:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteMealPlan:', error);
+    return false;
   }
 }
 

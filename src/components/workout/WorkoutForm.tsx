@@ -17,20 +17,22 @@ import {
 import { Info } from "lucide-react";
 
 interface WorkoutFormProps {
-  onSave: (status: 'draft' | 'published') => Promise<void>;
+  onSave: (data: WorkoutFormData, status: 'draft' | 'published') => Promise<void>;
   isSubmitting: boolean;
+  defaultValues?: WorkoutFormData;
 }
 
-export const WorkoutForm = ({ onSave, isSubmitting }: WorkoutFormProps) => {
+export const WorkoutForm = ({ onSave, isSubmitting, defaultValues }: WorkoutFormProps) => {
   const form = useForm<WorkoutFormData>({
     resolver: zodResolver(workoutFormSchema),
-    defaultValues: {
+    defaultValues: defaultValues || {
       title: "",
       description: "",
       duration: "",
       difficulty: "",
       frequency: "",
       workoutType: "strength",
+      clientId: "",
       exercises: [
         {
           id: "ex1",
@@ -78,9 +80,24 @@ export const WorkoutForm = ({ onSave, isSubmitting }: WorkoutFormProps) => {
     }
   };
 
+  const handleSubmit = async (status: 'draft' | 'published') => {
+    try {
+      const formData = form.getValues();
+      await form.trigger();
+      
+      if (form.formState.isValid) {
+        await onSave(formData, status);
+      } else {
+        console.error("Form validation failed:", form.formState.errors);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form className="space-y-8">
+      <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
         <div className="bg-card border rounded-xl p-6 space-y-6">
           <h2 className="text-xl font-semibold">Basic Information</h2>
           <WorkoutBasicInfo form={form} />
@@ -133,14 +150,14 @@ export const WorkoutForm = ({ onSave, isSubmitting }: WorkoutFormProps) => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => onSave('draft')}
+            onClick={() => handleSubmit('draft')}
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Saving...' : 'Save as Draft'}
           </Button>
           <Button
             type="button"
-            onClick={() => onSave('published')}
+            onClick={() => handleSubmit('published')}
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Publishing...' : 'Publish Workout'}
@@ -150,4 +167,3 @@ export const WorkoutForm = ({ onSave, isSubmitting }: WorkoutFormProps) => {
     </Form>
   );
 };
-

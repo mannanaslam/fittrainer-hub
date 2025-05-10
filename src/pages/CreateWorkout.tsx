@@ -6,22 +6,17 @@ import { Container } from "@/components/ui/Container";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { WorkoutForm } from "@/components/workout/WorkoutForm";
 import { WorkoutFormData } from "@/components/workout/types";
+import { createWorkout } from "@/lib/supabase";
 
 const CreateWorkout = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const validateForm = (data: WorkoutFormData): boolean => {
-    // Form validation is now handled by react-hook-form and zod
-    return true;
-  };
-
-  const saveWorkout = async (status: 'draft' | 'published') => {
+  const saveWorkout = async (data: WorkoutFormData, status: 'draft' | 'published') => {
     if (!user) {
       toast({ title: "Error", description: "You must be logged in to save a workout", variant: "destructive" });
       return;
@@ -30,27 +25,56 @@ const CreateWorkout = () => {
     try {
       setIsSubmitting(true);
       
-      const clientId = user.id;  // Use the current user's ID as client_id temporarily
+      // Determine client_id based on the user role
+      let clientId = null;
       
-      console.log("Creating workout with trainer_id:", user.id, "and client_id:", clientId);
+      if (profile?.role === 'trainer') {
+        // For trainers, client_id can be selected or null for template workouts
+        clientId = data.clientId || null;
+      } else {
+        // For clients, their own ID is used
+        clientId = user.id;
+      }
+      
+      console.log("Creating workout with trainer_id:", profile?.role === 'trainer' ? user.id : null, "and client_id:", clientId);
 
-      // This will be called from the WorkoutForm with the form data 
-      // already validated by react-hook-form
-      const form = document.querySelector('form');
-      const formData = new FormData(form as HTMLFormElement);
-      const formJSON = Object.fromEntries(formData);
+      // Format exercises data for Supabase
+      const formattedExercises = data.exercises.map(exercise => ({
+        name: exercise.name,
+        sets: parseInt(exercise.sets),
+        reps: parseInt(exercise.reps),
+        weight: exercise.weight ? parseInt(exercise.weight) : undefined,
+        duration: exercise.duration ? parseInt(exercise.duration) : undefined,
+        notes: exercise.notes,
+        restTime: exercise.restTime ? parseInt(exercise.restTime) : undefined,
+        videoUrl: exercise.videoUrl || undefined
+      }));
+
+      // Create workout object for database
+      const workoutData = {
+        title: data.title,
+        description: data.description,
+        trainer_id: profile?.role === 'trainer' ? user.id : null,
+        client_id: clientId,
+        exercises: formattedExercises
+      };
+
+      // Save to database
+      const savedWorkout = await createWorkout(workoutData);
       
-      // We'll implement the actual save functionality when we have the form values
-      // For now, we just show a success toast
+      if (!savedWorkout) {
+        throw new Error("Failed to save workout");
+      }
+
       toast({
         title: status === 'published' ? "Workout Published" : "Draft Saved",
         description: status === 'published' ? "Your workout has been published successfully" : "Your workout has been saved as draft"
       });
 
       if (status === 'published') {
-        navigate(`/workout-plan/1`); // Example ID
+        navigate(`/workout-plan/${savedWorkout.id}`);
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard?tab=workouts');
       }
     } catch (error) {
       console.error('Error saving workout:', error);

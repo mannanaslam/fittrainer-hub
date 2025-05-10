@@ -1,168 +1,193 @@
 
-import React from "react";
-import { UseFormReturn } from "react-hook-form";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { useEffect, useState } from "react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Dumbbell, Activity, Zap } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UseFormReturn } from "react-hook-form";
 import { WorkoutFormData } from "./types";
+import { useAuth } from "@/hooks/useAuth";
+import { getAllClients } from "@/lib/supabase";
+import { Profile } from "@/types/supabase";
 
 interface WorkoutBasicInfoProps {
   form: UseFormReturn<WorkoutFormData>;
 }
 
 export const WorkoutBasicInfo = ({ form }: WorkoutBasicInfoProps) => {
+  const { profile } = useAuth();
+  const [clients, setClients] = useState<Profile[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (profile?.role === 'trainer') {
+      const fetchClients = async () => {
+        setIsLoading(true);
+        try {
+          const clientsList = await getAllClients();
+          setClients(clientsList);
+        } catch (error) {
+          console.error("Error fetching clients:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchClients();
+    }
+  }, [profile]);
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Workout Name</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Upper Body Power Workout" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <FormField
+        control={form.control}
+        name="title"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Workout Title</FormLabel>
+            <FormControl>
+              <Input placeholder="e.g., Upper Body Strength" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-        <FormField
-          control={form.control}
-          name="duration"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Estimated Duration (minutes)</FormLabel>
+      <FormField
+        control={form.control}
+        name="workoutType"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Workout Type</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
-                <Input type="number" placeholder="e.g., 45" min="1" {...field} />
+                <SelectTrigger>
+                  <SelectValue placeholder="Select workout type" />
+                </SelectTrigger>
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              <SelectContent>
+                <SelectItem value="strength">Strength Training</SelectItem>
+                <SelectItem value="cardio">Cardio</SelectItem>
+                <SelectItem value="hiit">HIIT</SelectItem>
+                <SelectItem value="flexibility">Flexibility</SelectItem>
+                <SelectItem value="balance">Balance</SelectItem>
+                <SelectItem value="mixed">Mixed</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
+      <FormField
+        control={form.control}
+        name="difficulty"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Difficulty Level</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="beginner">Beginner</SelectItem>
+                <SelectItem value="intermediate">Intermediate</SelectItem>
+                <SelectItem value="advanced">Advanced</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="duration"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Duration (minutes)</FormLabel>
+            <FormControl>
+              <Input type="number" placeholder="e.g., 45" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="frequency"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Frequency (days per week)</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select frequency" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="1">1 day per week</SelectItem>
+                <SelectItem value="2">2 days per week</SelectItem>
+                <SelectItem value="3">3 days per week</SelectItem>
+                <SelectItem value="4">4 days per week</SelectItem>
+                <SelectItem value="5">5 days per week</SelectItem>
+                <SelectItem value="6">6 days per week</SelectItem>
+                <SelectItem value="7">7 days per week</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {profile?.role === 'trainer' && (
         <FormField
           control={form.control}
-          name="difficulty"
+          name="clientId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Difficulty Level</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <FormLabel>Assign to Client (Optional)</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select difficulty level" />
+                    <SelectValue placeholder="Select client or leave empty for template" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
+                  {isLoading ? (
+                    <SelectItem value="" disabled>Loading clients...</SelectItem>
+                  ) : clients.length > 0 ? (
+                    clients.map(client => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.name || client.email}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="" disabled>No clients available</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        <FormField
-          control={form.control}
-          name="frequency"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Recommended Frequency</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., 2-3 times per week" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem className="md:col-span-2">
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Describe the workout, its benefits, and who it's designed for..."
-                  className="min-h-[100px]"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+      )}
 
       <FormField
         control={form.control}
-        name="workoutType"
+        name="description"
         render={({ field }) => (
-          <FormItem className="space-y-3">
-            <FormLabel>Workout Type</FormLabel>
+          <FormItem className="md:col-span-2">
+            <FormLabel>Description</FormLabel>
             <FormControl>
-              <RadioGroup
-                onValueChange={field.onChange}
-                value={field.value}
-                className="grid grid-cols-2 sm:grid-cols-4 gap-3"
-              >
-                <div className="relative">
-                  <RadioGroupItem value="strength" id="strength" />
-                  <label
-                    htmlFor="strength"
-                    className="flex flex-col items-center justify-between border rounded-xl p-4 cursor-pointer hover:bg-secondary h-full"
-                  >
-                    <Dumbbell className="h-8 w-8 mb-2" />
-                    <span className="font-medium">Strength</span>
-                  </label>
-                </div>
-
-                <div className="relative">
-                  <RadioGroupItem value="cardio" id="cardio" />
-                  <label
-                    htmlFor="cardio"
-                    className="flex flex-col items-center justify-between border rounded-xl p-4 cursor-pointer hover:bg-secondary h-full"
-                  >
-                    <Activity className="h-8 w-8 mb-2" />
-                    <span className="font-medium">Cardio</span>
-                  </label>
-                </div>
-
-                <div className="relative">
-                  <RadioGroupItem value="flexibility" id="flexibility" />
-                  <label
-                    htmlFor="flexibility"
-                    className="flex flex-col items-center justify-between border rounded-xl p-4 cursor-pointer hover:bg-secondary h-full"
-                  >
-                    <Activity className="h-8 w-8 mb-2" />
-                    <span className="font-medium">Flexibility</span>
-                  </label>
-                </div>
-
-                <div className="relative">
-                  <RadioGroupItem value="hiit" id="hiit" />
-                  <label
-                    htmlFor="hiit"
-                    className="flex flex-col items-center justify-between border rounded-xl p-4 cursor-pointer hover:bg-secondary h-full"
-                  >
-                    <Zap className="h-8 w-8 mb-2" />
-                    <span className="font-medium">HIIT</span>
-                  </label>
-                </div>
-              </RadioGroup>
+              <Textarea
+                placeholder="Describe the workout, its benefits, and who it's designed for..."
+                className="min-h-[100px]"
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

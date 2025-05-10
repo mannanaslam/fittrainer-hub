@@ -9,6 +9,7 @@ import CreateSubscription from "@/pages/CreateSubscription";
 import CreateMealPlan from "@/pages/CreateMealPlan";
 import CreateWorkout from "@/pages/CreateWorkout";
 import WorkoutPlan from "@/pages/WorkoutPlan";
+import EditWorkout from "@/pages/EditWorkout";
 import Exercises from "@/pages/Exercises";
 import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
@@ -37,6 +38,7 @@ const AppRoutes = () => {
       <Route path="/meal-plan/create" element={<ProtectedRoute><CreateMealPlan /></ProtectedRoute>} />
       <Route path="/workout-plan/create" element={<ProtectedRoute><CreateWorkout /></ProtectedRoute>} />
       <Route path="/workout-plan/:id" element={<ProtectedRoute><WorkoutPlan /></ProtectedRoute>} />
+      <Route path="/workout-plan/edit/:id" element={<ProtectedRoute><EditWorkout /></ProtectedRoute>} />
       <Route path="/exercises" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
