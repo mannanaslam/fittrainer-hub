@@ -1,6 +1,7 @@
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/types/supabase';
 
-import { supabase } from './client';
-import { Subscription } from '@/types/supabase';
+export type Subscription = Database['public']['Tables']['subscriptions']['Row'];
 
 // Get all subscriptions with optional filtering by user
 export async function getSubscriptions(userId?: string): Promise<Subscription[]> {
@@ -44,4 +45,13 @@ export async function createSubscription(subscription: Omit<Subscription, 'id' |
     console.error('Error in createSubscription:', error);
     return null;
   }
+}
+
+export async function getSubscriptionsWithPlanAndUser() {
+  const { data, error } = await supabase
+    .from('subscriptions')
+    .select(`*, plan:plans(*), user:profiles(*)`)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
 }

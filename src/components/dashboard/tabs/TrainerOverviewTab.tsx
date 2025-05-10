@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Plus, Search, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,12 +7,14 @@ import { StatsCard } from "../cards/StatsCard";
 import { ClientsTable } from "../tables/ClientsTable";
 import { SubscriptionsTable } from "../tables/SubscriptionsTable";
 import { useAuth } from "@/hooks/useAuth";
-import { getAllClients, getWorkouts, getSubscriptions } from "@/lib/supabase";
-import { Workout, Profile, Subscription } from "@/types/supabase";
+import { getAllClients } from "@/lib/supabase/profiles";
+import { getWorkouts } from "@/lib/supabase/workouts";
+import { getSubscriptionsWithPlanAndUser } from "@/lib/supabase/subscriptions";
+import { Workout, Profile } from "@/types/supabase";
 
 export function TrainerOverviewTab() {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const [stats, setStats] = useState([
     { label: "Total Clients", value: "0" },
     { label: "Active Plans", value: "0" },
@@ -27,37 +28,34 @@ export function TrainerOverviewTab() {
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
-        if (profile?.id) {
-          // Fetch data only for trainers
-          if (profile.role === 'trainer') {
-            // Get clients
-            const clients = await getAllClients();
-            
-            // Get workouts created by this trainer
-            const workouts = await getWorkouts({ trainerId: profile.id });
-            
-            // Get subscriptions
-            const subscriptions = await getSubscriptions();
-            
-            // Set recent workouts
-            setRecentWorkouts(workouts.slice(0, 3));
-            
-            // Calculate stats
-            const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active');
-            const totalRevenue = activeSubscriptions.reduce((acc, sub) => {
-              // Extract numeric value from plan (assuming format like "19.99")
-              const planPrice = parseFloat(sub.plan.replace(/[^0-9.]/g, '')) || 0;
-              return acc + planPrice;
-            }, 0);
-            
-            // Update stats
-            setStats([
-              { label: "Total Clients", value: clients.length.toString() },
-              { label: "Active Plans", value: activeSubscriptions.length.toString() },
-              { label: "Revenue", value: `$${totalRevenue.toFixed(0)}` },
-              { label: "Completion Rate", value: "87%" }, // This would need a more complex calculation based on workout completion
-            ]);
-          }
+        if (user?.id) {
+          // Get clients
+          const clients = await getAllClients();
+          
+          // Get workouts created by this trainer
+          const workouts = await getWorkouts({ trainerId: user.id });
+          
+          // Get subscriptions
+          const subscriptions = await getSubscriptionsWithPlanAndUser();
+          
+          // Set recent workouts
+          setRecentWorkouts(workouts.slice(0, 3));
+          
+          // Calculate stats
+          const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active');
+          const totalRevenue = activeSubscriptions.reduce((acc, sub) => {
+            // Extract numeric value from plan (assuming format like "19.99")
+            const planPrice = parseFloat(sub.plan?.price || 0);
+            return acc + planPrice;
+          }, 0);
+          
+          // Update stats
+          setStats([
+            { label: "Total Clients", value: clients.length.toString() },
+            { label: "Active Plans", value: activeSubscriptions.length.toString() },
+            { label: "Revenue", value: `$${totalRevenue.toFixed(0)}` },
+            { label: "Completion Rate", value: "87%" }, // This would need a more complex calculation based on workout completion
+          ]);
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -67,12 +65,12 @@ export function TrainerOverviewTab() {
     };
 
     fetchDashboardData();
-  }, [profile]);
+  }, [user]);
   
   return (
     <Container>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">Welcome back, {profile?.name || 'Trainer'}</h1>
+        <h1 className="text-2xl font-bold mb-2">Welcome back, {user?.email || 'Trainer'}</h1>
         <p className="text-muted-foreground">Here's what's happening with your clients today.</p>
       </div>
       

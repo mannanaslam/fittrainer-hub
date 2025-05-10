@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -9,13 +8,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { WorkoutForm } from "@/components/workout/WorkoutForm";
 import { WorkoutFormData } from "@/components/workout/types";
-import { getWorkoutById, updateWorkout } from "@/lib/supabase";
+import { getWorkoutById, updateWorkout } from "@/lib/supabase/workouts";
 import { Workout } from "@/types/supabase";
 
 const EditWorkout = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
+  const profile = (useAuth() as any).profile;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [workout, setWorkout] = useState<Workout | null>(null);

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,13 +8,13 @@ import { Separator } from "@/components/ui/separator";
 import { MessageSquare, Search, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { getRecentConversations } from "@/lib/supabase";
+import { getRecentConversations } from "@/lib/supabase/messages";
 import { getAllClients } from "@/lib/supabase/profiles";
 import { Profile } from "@/types/supabase";
 
 export function MessagesTab() {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile } = useAuth() as { user: any; profile: any; loading: boolean; signIn: () => Promise<{ data: any; error: Error; }>; signUp: () => Promise<{ data: any; error: Error; }>; signOut: () => Promise<void>; requireAuth: (children: any) => JSX.Element; };
   const [conversations, setConversations] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);

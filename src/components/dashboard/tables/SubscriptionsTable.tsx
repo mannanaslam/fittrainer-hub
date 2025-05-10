@@ -1,13 +1,11 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getSubscriptions } from "@/lib/supabase";
-import { Subscription } from "@/types/supabase";
+import { getSubscriptionsWithPlanAndUser } from "@/lib/supabase/subscriptions";
 import { useToast } from "@/hooks/use-toast";
 
 export function SubscriptionsTable() {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   
@@ -15,7 +13,7 @@ export function SubscriptionsTable() {
     const fetchSubscriptions = async () => {
       setIsLoading(true);
       try {
-        const fetchedSubscriptions = await getSubscriptions();
+        const fetchedSubscriptions = await getSubscriptionsWithPlanAndUser();
         setSubscriptions(fetchedSubscriptions);
       } catch (error) {
         console.error("Error fetching subscriptions:", error);

@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { getAllClients } from "@/lib/supabase";
+import { getAllClients } from "@/lib/supabase/profiles";
 import { Profile } from "@/types/supabase";
 
 export function ClientsTable() {

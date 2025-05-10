@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UseFormReturn } from "react-hook-form";
 import { WorkoutFormData } from "./types";
 import { useAuth } from "@/hooks/useAuth";
-import { getAllClients } from "@/lib/supabase";
+import { getAllClients } from "@/lib/supabase/profiles";
 import { Profile } from "@/types/supabase";
 
 interface WorkoutBasicInfoProps {
@@ -15,12 +14,12 @@ interface WorkoutBasicInfoProps {
 }
 
 export const WorkoutBasicInfo = ({ form }: WorkoutBasicInfoProps) => {
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const [clients, setClients] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (profile?.role === 'trainer') {
+    if ((useAuth() as any).profile?.role === 'trainer') {
       const fetchClients = async () => {
         setIsLoading(true);
         try {
@@ -35,7 +34,7 @@ export const WorkoutBasicInfo = ({ form }: WorkoutBasicInfoProps) => {
 
       fetchClients();
     }
-  }, [profile]);
+  }, []);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -143,7 +142,7 @@ export const WorkoutBasicInfo = ({ form }: WorkoutBasicInfoProps) => {
         )}
       />
 
-      {profile?.role === 'trainer' && (
+      {(useAuth() as any).profile?.role === 'trainer' && (
         <FormField
           control={form.control}
           name="clientId"

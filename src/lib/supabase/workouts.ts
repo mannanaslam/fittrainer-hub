@@ -1,6 +1,9 @@
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/types/supabase';
 
-import { supabase } from './client';
-import { Workout } from '@/types/supabase';
+export type Workout = Database['public']['Tables']['workouts']['Row'];
+export type CreateWorkoutData = Omit<Workout, 'id' | 'created_at'>;
+export type UpdateWorkoutData = Partial<CreateWorkoutData>;
 
 // Get all workouts with optional filtering by trainer or client
 export async function getWorkouts(options?: { trainerId?: string; clientId?: string }): Promise<Workout[]> {
@@ -51,7 +54,7 @@ export async function getWorkoutById(workoutId: string): Promise<Workout | null>
 }
 
 // Create a new workout
-export async function createWorkout(workout: Omit<Workout, 'id' | 'created_at'>): Promise<Workout | null> {
+export async function createWorkout(workout: CreateWorkoutData): Promise<Workout | null> {
   try {
     console.log("Creating workout:", workout);
     const { data, error } = await supabase

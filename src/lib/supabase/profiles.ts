@@ -1,6 +1,9 @@
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/types/supabase';
 
-import { supabase } from './client';
-import { Profile, HealthMetric } from '@/types/supabase';
+export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type TrainerProfile = Database['public']['Tables']['trainer_profiles']['Row'];
+export type ClientProfile = Database['public']['Tables']['client_profiles']['Row'];
 
 // Helper function to get the current user's profile
 export async function getCurrentUserProfile(): Promise<Profile | null> {
@@ -59,23 +62,49 @@ export async function getUserProfileById(userId: string): Promise<Profile | null
 }
 
 // Get all clients (profiles with role 'client')
-export async function getAllClients(): Promise<Profile[]> {
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('role', 'client');
-    
-    if (error) {
-      console.error('Error fetching clients:', error);
-      return [];
-    }
-    
-    return data as Profile[];
-  } catch (error) {
-    console.error('Error in getAllClients:', error);
-    return [];
-  }
+export async function getAllClients() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(`
+      *,
+      client_profiles (*)
+    `)
+    .eq('role', 'client')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+// Get all trainers (profiles with role 'trainer')
+export async function getAllTrainers() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(`
+      *,
+      trainer_profiles (*)
+    `)
+    .eq('role', 'trainer')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+// Get a profile by ID
+export async function getProfileById(id: string) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(`
+      *,
+      trainer_profiles (*),
+      client_profiles (*)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+  return data;
 }
 
 // Helper function to create or update a user profile
@@ -196,4 +225,43 @@ export async function deleteHealthMetric(id: string): Promise<boolean> {
     console.error('Error in deleteHealthMetric:', error);
     return false;
   }
+}
+
+// Update a profile
+export async function updateProfile(id: string, profile: Partial<Profile>) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(profile)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Update a trainer profile
+export async function updateTrainerProfile(id: string, profile: Partial<TrainerProfile>) {
+  const { data, error } = await supabase
+    .from('trainer_profiles')
+    .update(profile)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Update a client profile
+export async function updateClientProfile(id: string, profile: Partial<ClientProfile>) {
+  const { data, error } = await supabase
+    .from('client_profiles')
+    .update(profile)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 }

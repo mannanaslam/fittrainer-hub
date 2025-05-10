@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Send, User } from "lucide-react";
-import { getMessagesBetweenUsers, sendMessage, markMessagesAsRead, getRecentConversations } from "@/lib/supabase";
+import { getMessagesBetweenUsers, sendMessage, markMessagesAsRead, getRecentConversations } from "@/lib/supabase/messages";
 import { getUserProfileById } from "@/lib/supabase/profiles";
 import { Profile, Message } from "@/types/supabase";
 import { supabase } from "@/integrations/supabase/client"; // Add this import
@@ -19,7 +19,8 @@ import { supabase } from "@/integrations/supabase/client"; // Add this import
 const Messaging = () => {
   const { contactId } = useParams<{ contactId?: string }>();
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
+  const profile = (useAuth() as any).profile;
   const [conversations, setConversations] = useState<any[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -83,8 +84,11 @@ const Messaging = () => {
       if (!contactId) return;
       
       try {
-        const profile = await getUserProfileById(contactId);
-        setContactProfile(profile);
+        const profileData = await getUserProfileById(contactId);
+        setContactProfile({
+          ...(profileData as any),
+          name: (profileData as any).name || `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || profileData.email || 'Unknown',
+        });
       } catch (error) {
         console.error("Error fetching contact profile:", error);
       }

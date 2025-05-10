@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { MealPlan } from "@/types/supabase";
 import { Badge } from "@/components/ui/badge";
-import { getMealPlans } from "@/lib/supabase";
+import { getMealPlans } from "@/lib/supabase/meal-plans";
 import { useAuth } from "@/hooks/useAuth";
 
 export function MealsTab() {
@@ -21,13 +20,8 @@ export function MealsTab() {
     const fetchMealPlans = async () => {
       setIsLoading(true);
       try {
-        // If user is a trainer, get their created meal plans
-        // If user is a client, get meal plans assigned to them
-        const options = profile?.role === 'trainer' 
-          ? { trainerId: profile.id } 
-          : { clientId: profile.id };
-          
-        const fetchedMealPlans = await getMealPlans(options);
+        // Just fetch all meal plans for now
+        const fetchedMealPlans = await getMealPlans();
         setMealPlans(fetchedMealPlans);
       } catch (error) {
         console.error("Error fetching meal plans:", error);
@@ -37,7 +31,7 @@ export function MealsTab() {
     };
 
     fetchMealPlans();
-  }, [profile]);
+  }, []);
   
   const filteredMealPlans = mealPlans.filter(plan => 
     plan.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
