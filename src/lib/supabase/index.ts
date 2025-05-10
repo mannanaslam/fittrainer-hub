@@ -5,3 +5,4 @@ export * from './profiles';
 export * from './workouts';
 export * from './meal-plans';
 export * from './subscriptions';
+export * from './messages';

@@ -1,4 +1,3 @@
-
 import { useLocation, useNavigate } from "react-router-dom";
 import { 
   Sidebar, 
@@ -162,7 +161,7 @@ export function DashboardSidebar() {
   const navItems = isTrainer ? trainerNavItems : clientNavItems;
 
   return (
-    <Sidebar>
+    <aside className="w-64 h-full">
       <SidebarHeader>
         <span className="text-xl font-bold">FitPro</span>
       </SidebarHeader>
@@ -193,6 +192,6 @@ export function DashboardSidebar() {
           <span>Sign out</span>
         </button>
       </SidebarFooter>
-    </Sidebar>
+    </aside>
   );
 }
