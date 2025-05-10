@@ -1,3 +1,4 @@
+
 // Use the official Supabase client from the integrations folder
 import { supabase as officialClient } from '@/integrations/supabase/client';
 import { Profile, Workout, MealPlan, Subscription } from '@/types/supabase';

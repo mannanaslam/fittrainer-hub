@@ -9,7 +9,144 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      meal_plans: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          meals: Json
+          title: string
+          trainer_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          meals: Json
+          title: string
+          trainer_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          meals?: Json
+          title?: string
+          trainer_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          activity_level: number | null
+          bio: string | null
+          created_at: string | null
+          email: string
+          experience: number | null
+          experience_level: string | null
+          goals: string[] | null
+          id: string
+          name: string | null
+          role: string
+          specialization: string | null
+          subscription_plan: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activity_level?: number | null
+          bio?: string | null
+          created_at?: string | null
+          email: string
+          experience?: number | null
+          experience_level?: string | null
+          goals?: string[] | null
+          id: string
+          name?: string | null
+          role?: string
+          specialization?: string | null
+          subscription_plan?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activity_level?: number | null
+          bio?: string | null
+          created_at?: string | null
+          email?: string
+          experience?: number | null
+          experience_level?: string | null
+          goals?: string[] | null
+          id?: string
+          name?: string | null
+          role?: string
+          specialization?: string | null
+          subscription_plan?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          end_date: string
+          id: string
+          plan: string
+          start_date: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date: string
+          id?: string
+          plan: string
+          start_date: string
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          plan?: string
+          start_date?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      workouts: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          description: string | null
+          exercises: Json
+          id: string
+          title: string
+          trainer_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          exercises: Json
+          id?: string
+          title: string
+          trainer_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          exercises?: Json
+          id?: string
+          title?: string
+          trainer_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
