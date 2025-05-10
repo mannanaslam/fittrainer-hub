@@ -6,7 +6,6 @@ import type { AuthError } from '@supabase/supabase-js';
 // Fetch user profile data
 export const fetchUserProfile = async (userId: string): Promise<Profile | null> => {
   try {
-    console.log("Fetching profile for user:", userId);
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -14,23 +13,22 @@ export const fetchUserProfile = async (userId: string): Promise<Profile | null> 
       .maybeSingle();
 
     if (error) {
-      console.error("Profile fetch error:", error);
       return null;
     }
 
-    console.log("Profile data:", data);
     return data as Profile;
   } catch (error) {
-    console.error("Profile fetch error:", error);
     return null;
   }
 };
 
 // Sign up a new user
-export const signUpUser = async (email: string, password: string, userData: any) => {
+export const signUpUser = async (
+  email: string, 
+  password: string, 
+  userData: Record<string, any>
+) => {
   try {
-    console.log("Signing up user:", email, userData);
-    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -44,16 +42,11 @@ export const signUpUser = async (email: string, password: string, userData: any)
     });
     
     if (error) {
-      console.error("Sign up error:", error);
       return { data, error };
     } 
     
-    console.log("Sign up successful:", data);
-    
     // Create profile record directly if the trigger doesn't kick in
     if (data.user) {
-      console.log("Creating profile record for user:", data.user.id);
-      
       try {
         // Create a properly structured profile object with all required fields
         const profileData = {
@@ -79,25 +72,16 @@ export const signUpUser = async (email: string, password: string, userData: any)
           });
         }
         
-        // Use inserts with RLS bypass option
-        const { error: profileError } = await supabase
+        await supabase
           .from('profiles')
           .upsert(profileData);
-        
-        if (profileError) {
-          console.error("Error creating profile:", profileError);
-        } else {
-          console.log("Profile created successfully");
-        }
       } catch (profileErr) {
-        console.error("Error in profile creation:", profileErr);
+        // Handle silently
       }
     }
     
     return { data, error: null };
   } catch (error) {
-    console.error("Error in signUp:", error);
-    
     const authError = error as AuthError;
     return { data: null, error: authError };
   }
@@ -106,23 +90,17 @@ export const signUpUser = async (email: string, password: string, userData: any)
 // Sign in an existing user
 export const signInUser = async (email: string, password: string) => {
   try {
-    console.log("Signing in with:", email);
-    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
     
     if (error) {
-      console.error("Sign in error:", error);
       return { data: null, error };
     } 
     
-    console.log("Sign in successful:", data?.user?.id);
     return { data, error: null };
   } catch (error) {
-    console.error("Error in signIn:", error);
-    
     const authError = error as AuthError;
     return { data: null, error: authError };
   }
@@ -134,7 +112,6 @@ export const signOutUser = async () => {
     await supabase.auth.signOut();
     return { error: null };
   } catch (error) {
-    console.error("Error in signOut:", error);
     return { error };
   }
 };

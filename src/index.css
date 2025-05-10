@@ -73,6 +73,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    scroll-behavior: smooth;
   }
   
   /* Glass effect styling */
@@ -82,6 +83,11 @@
   
   .glass-card {
     @apply bg-white/90 backdrop-blur-md border border-white/20 shadow-lg;
+  }
+  
+  /* Button styling enhancements */
+  .btn-glass {
+    @apply bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/10;
   }
   
   /* Animation classes */

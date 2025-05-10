@@ -6,14 +6,13 @@ import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { mainNavItems } from "./navigation";
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user, loading } = useAuth();
-  
-  console.log("Header component - loading:", loading, "user:", user ? "exists" : "null");
   
   useEffect(() => {
     const handleScroll = () => {
@@ -28,13 +27,6 @@ export function Header() {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
-  
-  const navItems = [
-    { name: "Home", path: "/" },
-    { name: "Features", path: "/#features" },
-    { name: "Pricing", path: "/#pricing" },
-    { name: "Testimonials", path: "/#testimonials" },
-  ];
   
   return (
     <header 
@@ -52,7 +44,7 @@ export function Header() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
+            {mainNavItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
@@ -78,7 +70,7 @@ export function Header() {
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="outline" className="animate-hover bg-white bg-opacity-20">
+                  <Button variant="outline" className="animate-hover bg-white/20">
                     Log in
                   </Button>
                 </Link>
@@ -113,7 +105,7 @@ export function Header() {
           <div className="glass mt-4 mx-4 rounded-xl overflow-hidden">
             <div className="py-4 px-2">
               <nav className="flex flex-col space-y-4">
-                {navItems.map((item) => (
+                {mainNavItems.map((item) => (
                   <Link
                     key={item.name}
                     to={item.path}

@@ -1,3 +1,4 @@
+
 import { useLocation, useNavigate } from "react-router-dom";
 import { 
   Sidebar, 
@@ -22,20 +23,28 @@ import {
   MessageSquare,
   UserCircle,
   HeartPulse,
-  Trophy
+  Trophy,
+  LucideIcon
 } from "lucide-react";
+import { DashboardTabType } from "./TabTypes";
+
+interface NavItem {
+  title: string;
+  icon: LucideIcon;
+  tab: DashboardTabType;
+}
 
 export function DashboardSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut, profile, user } = useAuth();
+  const { signOut, profile } = useAuth();
   
   // Get the current tab from the URL query parameters
   const searchParams = new URLSearchParams(location.search);
-  const currentTab = searchParams.get('tab') || 'overview';
+  const currentTab = (searchParams.get('tab') || 'overview') as DashboardTabType;
   
   // Helper to create URL with tab query parameter
-  const createTabUrl = (tab: string) => {
+  const createTabUrl = (tab: DashboardTabType) => {
     return `/dashboard?tab=${tab}`;
   };
   
@@ -43,117 +52,99 @@ export function DashboardSidebar() {
   const isTrainer = profile?.role === 'trainer';
   
   // Navigation items based on user role
-  const trainerNavItems = [
+  const trainerNavItems: NavItem[] = [
     {
       title: "Overview",
       icon: LayoutDashboard,
-      href: createTabUrl("overview"),
-      active: currentTab === "overview"
+      tab: "overview"
     },
     {
       title: "Clients",
       icon: Users,
-      href: createTabUrl("clients"),
-      active: currentTab === "clients"
+      tab: "clients"
     },
     {
       title: "Subscriptions",
       icon: CreditCard,
-      href: createTabUrl("subscriptions"),
-      active: currentTab === "subscriptions"
+      tab: "subscriptions"
     },
     {
       title: "Workouts",
       icon: Dumbbell,
-      href: createTabUrl("workouts"),
-      active: currentTab === "workouts"
+      tab: "workouts"
     },
     {
       title: "Meal Plans",
       icon: Utensils,
-      href: createTabUrl("meals"),
-      active: currentTab === "meals"
+      tab: "meals"
     },
     {
       title: "Schedule",
       icon: Calendar,
-      href: createTabUrl("schedule"),
-      active: currentTab === "schedule"
+      tab: "schedule"
     },
     {
       title: "Analytics",
       icon: BarChart,
-      href: createTabUrl("analytics"),
-      active: currentTab === "analytics"
+      tab: "analytics"
     },
     {
       title: "Messages",
       icon: MessageSquare,
-      href: createTabUrl("messages"),
-      active: currentTab === "messages"
+      tab: "messages"
     },
     {
       title: "Settings",
       icon: Settings,
-      href: createTabUrl("settings"),
-      active: currentTab === "settings"
+      tab: "settings"
     }
   ];
   
-  const clientNavItems = [
+  const clientNavItems: NavItem[] = [
     {
       title: "Overview",
       icon: LayoutDashboard,
-      href: createTabUrl("overview"),
-      active: currentTab === "overview"
+      tab: "overview"
     },
     {
       title: "My Workouts",
       icon: Dumbbell,
-      href: createTabUrl("workouts"),
-      active: currentTab === "workouts"
+      tab: "workouts"
     },
     {
       title: "My Meal Plan",
       icon: Utensils,
-      href: createTabUrl("meals"),
-      active: currentTab === "meals"
+      tab: "meals"
     },
     {
       title: "Progress",
       icon: Trophy,
-      href: createTabUrl("progress"),
-      active: currentTab === "progress"
+      tab: "progress"
     },
     {
       title: "Health Metrics",
       icon: HeartPulse,
-      href: createTabUrl("health"),
-      active: currentTab === "health"
+      tab: "health"
     },
     {
       title: "Schedule",
       icon: Calendar,
-      href: createTabUrl("schedule"),
-      active: currentTab === "schedule"
+      tab: "schedule"
     },
     {
       title: "Messages",
       icon: MessageSquare,
-      href: createTabUrl("messages"),
-      active: currentTab === "messages"
+      tab: "messages"
     },
     {
       title: "My Profile",
       icon: UserCircle,
-      href: createTabUrl("profile"),
-      active: currentTab === "profile"
+      tab: "profile"
     },
     {
       title: "Settings",
       icon: Settings,
-      href: createTabUrl("settings"),
-      active: currentTab === "settings"
+      tab: "settings"
     }
   ];
   
@@ -171,8 +162,8 @@ export function DashboardSidebar() {
           {navItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton 
-                isActive={item.active}
-                onClick={() => navigate(item.href)}
+                isActive={item.tab === currentTab}
+                onClick={() => navigate(createTabUrl(item.tab))}
                 tooltip={item.title}
               >
                 <item.icon className="h-4 w-4 mr-3" />

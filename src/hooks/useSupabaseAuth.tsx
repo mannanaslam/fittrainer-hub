@@ -20,7 +20,6 @@ export function useSupabaseAuth() {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log("Auth state changed:", event, newSession?.user?.id);
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
@@ -29,7 +28,6 @@ export function useSupabaseAuth() {
             const userProfile = await fetchUserProfile(newSession.user.id);
             setProfile(userProfile);
           } catch (error) {
-            console.error("Error fetching user profile:", error);
             setProfile(null);
           }
         } else {
@@ -44,7 +42,6 @@ export function useSupabaseAuth() {
     const checkExistingSession = async () => {
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
-        console.log("Initial session check:", initialSession?.user?.id);
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
         
@@ -53,12 +50,11 @@ export function useSupabaseAuth() {
             const userProfile = await fetchUserProfile(initialSession.user.id);
             setProfile(userProfile);
           } catch (error) {
-            console.error("Error fetching user profile:", error);
             setProfile(null);
           }
         }
       } catch (error) {
-        console.error("Error checking session:", error);
+        // Handle error silently
       } finally {
         setLoading(false);
       }
@@ -71,7 +67,7 @@ export function useSupabaseAuth() {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, userData: any) => {
+  const signUp = async (email: string, password: string, userData: Record<string, any>) => {
     try {
       setLoading(true);
       
@@ -118,7 +114,7 @@ export function useSupabaseAuth() {
           const userProfile = await fetchUserProfile(data.user.id);
           setProfile(userProfile);
         } catch (profileError) {
-          console.error("Error fetching user profile after login:", profileError);
+          // Handle error silently
         }
       }
       

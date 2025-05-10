@@ -2,13 +2,15 @@
 import { createContext, ReactNode, useContext } from "react";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Navigate, useLocation } from "react-router-dom";
+import type { User } from '@supabase/supabase-js';
+import type { Profile } from '@/types/supabase';
 
 type AuthContextType = {
-  user: any;
-  profile: any;
+  user: User | null;
+  profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<any>;
-  signUp: (email: string, password: string, userData: any) => Promise<any>;
+  signUp: (email: string, password: string, userData: Record<string, any>) => Promise<any>;
   signOut: () => Promise<void>;
   requireAuth: (children: ReactNode) => JSX.Element;
 };
@@ -18,23 +20,11 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const auth = useSupabaseAuth();
-  const {
-    user,
-    profile,
-    loading,
-    signIn,
-    signUp,
-    signOut,
-  } = auth;
   
-  console.log("AuthProvider loading:", loading, "user:", user ? "exists" : "null");
-  
-  // Function to require authentication for protected routes
   const requireAuth = (children: ReactNode) => {
     const location = useLocation();
     
-    if (loading) {
-      // Show loading state while checking auth
+    if (auth.loading) {
       return (
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -42,26 +32,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       );
     }
     
-    if (!user) {
-      console.log("User not authenticated, redirecting to login");
-      // If not authenticated, redirect to login page with location state
+    if (!auth.user) {
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
     
-    // If authenticated, render the children
-    console.log("User authenticated, rendering content");
     return <>{children}</>;
   };
   
   return (
     <AuthContext.Provider
       value={{
-        user,
-        profile,
-        loading,
-        signIn,
-        signUp,
-        signOut,
+        ...auth,
         requireAuth,
       }}
     >

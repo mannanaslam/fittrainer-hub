@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { useLocation, Navigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { DashboardLayout } from "./DashboardLayout";
 import { OverviewTab } from "./tabs/OverviewTab";
 import { ClientsTab } from "./tabs/ClientsTab";
@@ -10,12 +11,26 @@ import { ScheduleTab } from "./tabs/ScheduleTab";
 import { AnalyticsTab } from "./tabs/AnalyticsTab";
 import { ComingSoonTab } from "./tabs/ComingSoonTab";
 import { useAuth } from "@/hooks/useAuth";
+import { DashboardTabType } from "./TabTypes";
 
 export function Dashboard() {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState<DashboardTabType>('overview');
   const { profile, loading } = useAuth();
   
+  // Determine if user is a trainer
+  const isTrainer = profile?.role === 'trainer';
+
+  // Parse tab from URL on component mount and when URL changes
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tab = searchParams.get("tab") as DashboardTabType;
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [location.search]);
+
+  // Loading state
   if (loading) {
     return (
       <DashboardLayout>
@@ -25,122 +40,55 @@ export function Dashboard() {
       </DashboardLayout>
     );
   }
-  
-  const isTrainer = profile?.role === 'trainer';
 
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const tab = searchParams.get("tab");
-    if (tab) {
-      setActiveTab(tab);
+  // Render appropriate tab based on active tab and user role
+  const renderTab = () => {
+    // Common tabs for both user types
+    switch (activeTab) {
+      case 'overview':
+        return <OverviewTab />;
+      case 'workouts':
+        return <WorkoutTab />;
+      case 'meals':
+        return <MealsTab />;
+      case 'schedule':
+        return <ScheduleTab />;
+      case 'messages':
+        return <ComingSoonTab tabName="messages" />;
+      case 'settings':
+        return <ComingSoonTab tabName="settings" />;
     }
-  }, [location.search]);
 
-  // Render the appropriate tab based on the activeTab state
-  if (activeTab === "overview") {
-    return (
-      <DashboardLayout>
-        <OverviewTab />
-      </DashboardLayout>
-    );
-  }
-  
-  if (activeTab === "workouts") {
-    return (
-      <DashboardLayout>
-        <WorkoutTab />
-      </DashboardLayout>
-    );
-  }
-  
-  if (activeTab === "meals") {
-    return (
-      <DashboardLayout>
-        <MealsTab />
-      </DashboardLayout>
-    );
-  }
-  
-  if (activeTab === "schedule") {
-    return (
-      <DashboardLayout>
-        <ScheduleTab />
-      </DashboardLayout>
-    );
-  }
-  
-  if (activeTab === "messages") {
-    return (
-      <DashboardLayout>
-        <ComingSoonTab tabName="messages" />
-      </DashboardLayout>
-    );
-  }
-  
-  if (activeTab === "settings") {
-    return (
-      <DashboardLayout>
-        <ComingSoonTab tabName="settings" />
-      </DashboardLayout>
-    );
-  }
-  
-  if (isTrainer) {
-    if (activeTab === "clients") {
-      return (
-        <DashboardLayout>
-          <ClientsTab />
-        </DashboardLayout>
-      );
+    // Trainer-specific tabs
+    if (isTrainer) {
+      switch (activeTab) {
+        case 'clients':
+          return <ClientsTab />;
+        case 'subscriptions':
+          return <SubscriptionsTab />;
+        case 'analytics':
+          return <AnalyticsTab />;
+      }
+    } 
+    // Client-specific tabs
+    else {
+      switch (activeTab) {
+        case 'progress':
+          return <ComingSoonTab tabName="progress tracking" />;
+        case 'health':
+          return <ComingSoonTab tabName="health metrics" />;
+        case 'profile':
+          return <ComingSoonTab tabName="client profile" />;
+      }
     }
-    
-    if (activeTab === "subscriptions") {
-      return (
-        <DashboardLayout>
-          <SubscriptionsTab />
-        </DashboardLayout>
-      );
-    }
-    
-    if (activeTab === "analytics") {
-      return (
-        <DashboardLayout>
-          <AnalyticsTab />
-        </DashboardLayout>
-      );
-    }
-  }
-  
-  if (!isTrainer) {
-    if (activeTab === "progress") {
-      return (
-        <DashboardLayout>
-          <ComingSoonTab tabName="progress tracking" />
-        </DashboardLayout>
-      );
-    }
-    
-    if (activeTab === "health") {
-      return (
-        <DashboardLayout>
-          <ComingSoonTab tabName="health metrics" />
-        </DashboardLayout>
-      );
-    }
-    
-    if (activeTab === "profile") {
-      return (
-        <DashboardLayout>
-          <ComingSoonTab tabName="client profile" />
-        </DashboardLayout>
-      );
-    }
-  }
 
-  // Default fallback
+    // Default fallback
+    return <OverviewTab />;
+  };
+
   return (
     <DashboardLayout>
-      <OverviewTab />
+      {renderTab()}
     </DashboardLayout>
   );
 }
