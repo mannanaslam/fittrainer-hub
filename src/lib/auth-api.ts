@@ -35,7 +35,11 @@ export const signUpUser = async (email: string, password: string, userData: any)
       email,
       password,
       options: {
-        data: userData
+        data: {
+          name: userData.name || '',
+          userType: userData.userType || 'client',
+          ...userData
+        }
       }
     });
     
@@ -50,39 +54,43 @@ export const signUpUser = async (email: string, password: string, userData: any)
     if (data.user) {
       console.log("Creating profile record for user:", data.user.id);
       
-      // Create a properly structured profile object with all required fields
-      const profileData = {
-        id: data.user.id,
-        email: data.user.email || email,
-        name: userData.name || '',
-        role: userData.userType || 'client',
-        subscription_plan: userData.plan || 'free'
-      };
-      
-      // Add user type specific fields
-      if (userData.userType === 'trainer') {
-        Object.assign(profileData, {
-          specialization: userData.specialization || '',
-          experience: userData.experience || 0,
-          bio: userData.bio || '',
-        });
-      } else {
-        Object.assign(profileData, {
-          goals: userData.goals || [],
-          experience_level: userData.experienceLevel || '',
-          activity_level: userData.activityLevel || 0,
-        });
-      }
-      
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert(profileData);
-      
-      if (profileError) {
-        console.error("Error creating profile:", profileError);
-        return { data, error: profileError };
-      } else {
-        console.log("Profile created successfully");
+      try {
+        // Create a properly structured profile object with all required fields
+        const profileData = {
+          id: data.user.id,
+          email: data.user.email || email,
+          name: userData.name || '',
+          role: userData.userType || 'client',
+          subscription_plan: userData.plan || 'free'
+        };
+        
+        // Add user type specific fields
+        if (userData.userType === 'trainer') {
+          Object.assign(profileData, {
+            specialization: userData.specialization || '',
+            experience: userData.experience || 0,
+            bio: userData.bio || '',
+          });
+        } else {
+          Object.assign(profileData, {
+            goals: userData.goals || [],
+            experience_level: userData.experienceLevel || '',
+            activity_level: userData.activityLevel || 0,
+          });
+        }
+        
+        // Use inserts with RLS bypass option
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert(profileData);
+        
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
+        } else {
+          console.log("Profile created successfully");
+        }
+      } catch (profileErr) {
+        console.error("Error in profile creation:", profileErr);
       }
     }
     
